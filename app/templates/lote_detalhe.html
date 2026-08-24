@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+{% block title %}{{ lote.nome_completo }}{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-2 mb-3">
+  <div>
+    <h1 class="h3 mb-0">
+      {{ lote.nome_completo }}
+      {% if lote.is_rascunho %}<span class="badge badge-rascunho">rascunho</span>{% endif %}
+      <span class="badge {{ 'bg-secondary' if lote.status == 'encerrado' else 'bg-success' }}">{{ lote.status }}</span>
+    </h1>
+    <div class="text-muted">Criado em {{ lote.data_criacao.strftime('%d/%m/%Y') }} · parceria {{ lote.percentual_parceria }}%</div>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('lotes.editar', lote_id=lote.id) }}">Editar</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('vendas.simular', lote_id=lote.id) }}">Simular venda</a>
+    <form method="post" action="{{ url_for('lotes.duplicar', lote_id=lote.id) }}" class="d-inline">
+      <button type="submit" class="btn btn-outline-secondary btn-sm">Duplicar como rascunho</button>
+    </form>
+    {% if resumo.sobra > 0 %}
+    <a class="btn btn-outline-primary btn-sm" href="{{ url_for('lotes.transferir_sobra', lote_id=lote.id) }}">Transferir sobra</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="card card-metric p-3">
+      <div class="small text-muted">Total de cabeças</div>
+      <div class="valor">{{ resumo.total_cabecas_compradas }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card card-metric p-3">
+      <div class="small text-muted">Custo médio/cabeça</div>
+      <div class="valor">{{ resumo.custo_medio_cabeca | brl }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card card-metric p-3">
+      <div class="small text-muted">Sobra (não vendida)</div>
+      <div class="valor">{{ resumo.sobra }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card card-metric p-3">
+      <div class="small text-muted">Custo da sobra</div>
+      <div class="valor">{{ resumo.custo_sobra | brl }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card card-metric p-3 {{ 'lucro-positivo' if resumo.lucro_bruto >= 0 else 'lucro-negativo' }}">
+      <div class="small text-muted">Lucro bruto</div>
+      <div class="valor">{{ resumo.lucro_bruto | brl }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card card-metric p-3">
+      <div class="small text-muted">Lucro por cabeça</div>
+      <div class="valor">{{ resumo.lucro_por_cabeca | brl }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card card-metric p-3 {{ 'lucro-positivo' if resumo.lucro_liquido >= 0 else 'lucro-negativo' }}">
+      <div class="small text-muted">Lucro líquido</div>
+      <div class="valor">{{ resumo.lucro_liquido | brl }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card card-metric p-3">
+      <div class="small text-muted">Divisão da parceria ({{ lote.percentual_parceria }}%)</div>
+      <div class="valor">{{ resumo.divisao_parceria | brl }}</div>
+    </div>
+  </div>
+</div>
+
+{% if lote.sobras_recebidas %}
+<div class="alert alert-info">
+  Este lote recebeu sobra transferida:
+  {% for s in lote.sobras_recebidas %}
+    {{ s.quantidade }} cabeça(s) do lote {{ s.lote_origem.nome_completo }} (custo médio herdado {{ s.custo_medio_herdado | brl }}){{ "; " if not loop.last }}
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h2 class="h5 mb-0">Compras</h2>
+      <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalNovaCompra">
+        + Nova compra
+      </button>
+    </div>
+    <div class="table-responsive mb-2">
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Data</th><th>Fornecedor</th><th class="text-end">Qtd</th>
+            <th class="text-end">Valor unit.</th><th class="text-end">Custo total</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in lote.compras %}
+          <tr>
+            <td>{{ c.data.strftime('%d/%m/%Y') }}</td>
+            <td>{{ c.fornecedor }}</td>
+            <td class="text-end">{{ c.quantidade }}</td>
+            <td class="text-end">{{ c.valor_unitario | brl }}</td>
+            <td class="text-end">{{ c.custo_total | brl }}</td>
+            <td class="text-end text-nowrap">
+              <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('compras.editar', lote_id=lote.id, compra_id=c.id) }}">Editar</a>
+              <form method="post" action="{{ url_for('compras.excluir', lote_id=lote.id, compra_id=c.id) }}" class="d-inline" onsubmit="return confirm('Excluir esta compra?');">
+                <button type="submit" class="btn btn-sm btn-outline-danger">×</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="text-muted">Nenhuma compra lançada ainda.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h2 class="h5 mb-0">Vendas</h2>
+      <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalNovaVenda">
+        + Nova venda
+      </button>
+    </div>
+    <div class="table-responsive mb-2">
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Data</th><th>Comprador</th><th class="text-end">Qtd</th>
+            <th class="text-end">Valor unit.</th><th class="text-end">Total líquido</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for v in lote.vendas %}
+          <tr class="{{ 'table-warning' if v.eh_transferencia_sobra }}">
+            <td>{{ v.data.strftime('%d/%m/%Y') }}</td>
+            <td>
+              {{ v.comprador }}
+              {% if v.eh_transferencia_sobra %}<span class="badge badge-rascunho">transferência</span>{% endif %}
+            </td>
+            <td class="text-end">{{ v.quantidade }}</td>
+            <td class="text-end">{{ v.valor_unitario | brl }}</td>
+            <td class="text-end">{{ v.total_liquido | brl }}</td>
+            <td class="text-end text-nowrap">
+              <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('vendas.editar', lote_id=lote.id, venda_id=v.id) }}">Editar</a>
+              <form method="post" action="{{ url_for('vendas.excluir', lote_id=lote.id, venda_id=v.id) }}" class="d-inline" onsubmit="return confirm('Excluir esta venda?');">
+                <button type="submit" class="btn btn-sm btn-outline-danger">×</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="text-muted">Nenhuma venda lançada ainda.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Nova compra -->
+<div class="modal fade" id="modalNovaCompra" tabindex="-1" aria-labelledby="modalNovaCompraLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form method="post" action="{{ url_for('compras.nova', lote_id=lote.id) }}" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalNovaCompraLabel">Lançar nova compra</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-2">
+          <div class="col-12 col-sm-6">
+            <label class="form-label small">Data</label>
+            <input type="date" name="data" class="form-control">
+          </div>
+          <div class="col-12 col-sm-6">
+            <label class="form-label small">Fornecedor</label>
+            <input type="text" name="fornecedor" class="form-control" required>
+          </div>
+          <div class="col-6">
+            <label class="form-label small">Quantidade</label>
+            <input type="number" name="quantidade" class="form-control" required>
+          </div>
+          <div class="col-6">
+            <label class="form-label small">Valor unitário</label>
+            <input type="number" step="0.01" name="valor_unitario" class="form-control" required>
+          </div>
+          <div class="col-6 col-sm-4">
+            <label class="form-label small">Frete</label>
+            <input type="number" step="0.01" name="frete" class="form-control" value="0">
+          </div>
+          <div class="col-6 col-sm-4">
+            <label class="form-label small">Comissão</label>
+            <input type="number" step="0.01" name="comissao" class="form-control" value="0">
+          </div>
+          <div class="col-12 col-sm-4">
+            <label class="form-label small">Outras despesas</label>
+            <input type="number" step="0.01" name="outras_despesas" class="form-control" value="0">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Lançar compra</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Nova venda -->
+<div class="modal fade" id="modalNovaVenda" tabindex="-1" aria-labelledby="modalNovaVendaLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form method="post" action="{{ url_for('vendas.nova', lote_id=lote.id) }}" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalNovaVendaLabel">Lançar nova venda</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-2">
+          <div class="col-12 col-sm-6">
+            <label class="form-label small">Data</label>
+            <input type="date" name="data" class="form-control">
+          </div>
+          <div class="col-12 col-sm-6">
+            <label class="form-label small">Comprador</label>
+            <input type="text" name="comprador" class="form-control" required>
+          </div>
+          <div class="col-6">
+            <label class="form-label small">Quantidade (sobra: {{ resumo.sobra }})</label>
+            <input type="number" name="quantidade" class="form-control" max="{{ resumo.sobra }}" required>
+          </div>
+          <div class="col-6">
+            <label class="form-label small">Valor unitário</label>
+            <input type="number" step="0.01" name="valor_unitario" class="form-control" required>
+          </div>
+          <div class="col-6 col-sm-4">
+            <label class="form-label small">Frete</label>
+            <input type="number" step="0.01" name="frete" class="form-control" value="0">
+          </div>
+          <div class="col-6 col-sm-4">
+            <label class="form-label small">Comissão</label>
+            <input type="number" step="0.01" name="comissao" class="form-control" value="0">
+          </div>
+          <div class="col-12 col-sm-4">
+            <label class="form-label small">GTA</label>
+            <input type="number" step="0.01" name="gta" class="form-control" value="0">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Lançar venda</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

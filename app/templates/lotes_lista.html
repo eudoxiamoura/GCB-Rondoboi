@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Lotes{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4">Lotes</h1>
+
+{% if not lotes %}
+  <p class="text-muted">Nenhum lote cadastrado ainda. <a href="{{ url_for('lotes.novo') }}">Criar o primeiro lote</a>.</p>
+{% else %}
+<div class="table-responsive">
+  <table class="table table-hover align-middle">
+    <thead>
+      <tr>
+        <th>Lote</th>
+        <th class="d-none d-md-table-cell">Status</th>
+        <th class="text-end d-none d-md-table-cell">Cabeças</th>
+        <th class="text-end d-none d-lg-table-cell">Custo médio/cabeça</th>
+        <th class="text-end">Sobra</th>
+        <th class="text-end">Lucro líquido</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for lote in lotes %}
+      {% set resumo = resumos[lote.id] %}
+      <tr>
+        <td>
+          <a href="{{ url_for('lotes.detalhe', lote_id=lote.id) }}">{{ lote.nome_completo }}</a>
+        </td>
+        <td class="d-none d-md-table-cell">
+          <span class="badge {{ 'bg-secondary' if lote.status == 'encerrado' else 'bg-success' }}">
+            {{ lote.status }}
+          </span>
+        </td>
+        <td class="text-end d-none d-md-table-cell">{{ resumo.total_cabecas_compradas }}</td>
+        <td class="text-end d-none d-lg-table-cell">{{ resumo.custo_medio_cabeca | brl }}</td>
+        <td class="text-end">{{ resumo.sobra }}</td>
+        <td class="text-end {{ 'text-success' if resumo.lucro_liquido >= 0 else 'text-danger' }}">
+          {{ resumo.lucro_liquido | brl }}
+        </td>
+        <td class="text-end">
+          <a class="btn btn-sm btn-outline-primary" href="{{ url_for('lotes.detalhe', lote_id=lote.id) }}">Ver</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

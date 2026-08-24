@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Simular venda{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-1">Simular venda — {{ lote.nome_completo }}</h1>
+<p class="text-muted">Este resultado <strong>não é gravado</strong>. Use para testar cenários antes de lançar a venda de verdade.</p>
+
+<div class="row">
+  <div class="col-lg-5">
+    <form method="post">
+      <div class="mb-3">
+        <label class="form-label">Comprador</label>
+        <input type="text" name="comprador" class="form-control" value="{{ dados_form.get('comprador', '') }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Data</label>
+        <input type="date" name="data" class="form-control" value="{{ dados_form.get('data', '') }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Quantidade (cabeças)</label>
+        <input type="number" name="quantidade" class="form-control" value="{{ dados_form.get('quantidade', '') }}" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Valor unitário</label>
+        <input type="number" step="0.01" name="valor_unitario" class="form-control" value="{{ dados_form.get('valor_unitario', '') }}" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Frete</label>
+        <input type="number" step="0.01" name="frete" class="form-control" value="{{ dados_form.get('frete', 0) }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Comissão</label>
+        <input type="number" step="0.01" name="comissao" class="form-control" value="{{ dados_form.get('comissao', 0) }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">GTA</label>
+        <input type="number" step="0.01" name="gta" class="form-control" value="{{ dados_form.get('gta', 0) }}">
+      </div>
+      <button type="submit" class="btn btn-primary">Simular</button>
+      <a href="{{ url_for('lotes.detalhe', lote_id=lote.id) }}" class="btn btn-link">Voltar ao lote</a>
+    </form>
+  </div>
+
+  <div class="col-lg-7">
+    {% if resultado %}
+    <h2 class="h5">Resultado simulado</h2>
+    <div class="row g-3">
+      <div class="col-6 col-md-4">
+        <div class="card card-metric p-3">
+          <div class="small text-muted">Total de cabeças (compradas)</div>
+          <div class="valor">{{ resultado.total_cabecas_compradas }}</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="card card-metric p-3">
+          <div class="small text-muted">Custo médio/cabeça</div>
+          <div class="valor">{{ resultado.custo_medio_cabeca | brl }}</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="card card-metric p-3">
+          <div class="small text-muted">Sobra após esta venda</div>
+          <div class="valor">{{ resultado.sobra }}</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="card card-metric p-3">
+          <div class="small text-muted">Custo da sobra</div>
+          <div class="valor">{{ resultado.custo_sobra | brl }}</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="card card-metric p-3 {{ 'lucro-positivo' if resultado.lucro_bruto >= 0 else 'lucro-negativo' }}">
+          <div class="small text-muted">Lucro bruto</div>
+          <div class="valor">{{ resultado.lucro_bruto | brl }}</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="card card-metric p-3">
+          <div class="small text-muted">Lucro por cabeça</div>
+          <div class="valor">{{ resultado.lucro_por_cabeca | brl }}</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="card card-metric p-3 {{ 'lucro-positivo' if resultado.lucro_liquido >= 0 else 'lucro-negativo' }}">
+          <div class="small text-muted">Lucro líquido</div>
+          <div class="valor">{{ resultado.lucro_liquido | brl }}</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="card card-metric p-3">
+          <div class="small text-muted">Divisão da parceria ({{ lote.percentual_parceria }}%)</div>
+          <div class="valor">{{ resultado.divisao_parceria | brl }}</div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <p class="text-muted">Preencha o formulário e clique em "Simular" para ver o resultado.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

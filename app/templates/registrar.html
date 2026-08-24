@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Criar conta{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-5 col-lg-4">
+    <h1 class="h3 mb-4 text-center">Criar conta</h1>
+    <form method="post">
+      <div class="mb-3">
+        <label class="form-label">Usuário</label>
+        <input type="text" name="username" class="form-control" value="{{ username or '' }}" autofocus required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Senha</label>
+        <input type="password" name="password" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Confirmar senha</label>
+        <input type="password" name="confirmar_senha" class="form-control" required>
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Criar conta</button>
+    </form>
+    <p class="text-center mt-3">
+      <a href="{{ url_for('auth.login') }}">Já tenho conta</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

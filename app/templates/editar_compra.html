@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Editar compra{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4">Editar compra</h1>
+
+<form method="post" class="col-lg-6">
+  <div class="row g-2">
+    <div class="col-12 col-sm-6">
+      <label class="form-label">Data</label>
+      <input type="date" name="data" class="form-control" value="{{ compra.data.strftime('%Y-%m-%d') }}">
+    </div>
+    <div class="col-12 col-sm-6">
+      <label class="form-label">Fornecedor</label>
+      <input type="text" name="fornecedor" class="form-control" value="{{ compra.fornecedor }}" required>
+    </div>
+    <div class="col-6">
+      <label class="form-label">Quantidade</label>
+      <input type="number" name="quantidade" class="form-control" value="{{ compra.quantidade }}" required>
+    </div>
+    <div class="col-6">
+      <label class="form-label">Valor unitário</label>
+      <input type="number" step="0.01" name="valor_unitario" class="form-control" value="{{ compra.valor_unitario }}" required>
+    </div>
+    <div class="col-6 col-sm-4">
+      <label class="form-label">Frete</label>
+      <input type="number" step="0.01" name="frete" class="form-control" value="{{ compra.frete }}">
+    </div>
+    <div class="col-6 col-sm-4">
+      <label class="form-label">Comissão</label>
+      <input type="number" step="0.01" name="comissao" class="form-control" value="{{ compra.comissao }}">
+    </div>
+    <div class="col-12 col-sm-4">
+      <label class="form-label">Outras despesas</label>
+      <input type="number" step="0.01" name="outras_despesas" class="form-control" value="{{ compra.outras_despesas }}">
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary mt-3">Salvar</button>
+  <a href="{{ url_for('lotes.detalhe', lote_id=compra.lote_id) }}" class="btn btn-link mt-3">Cancelar</a>
+</form>
+{% endblock %}

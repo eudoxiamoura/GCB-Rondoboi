@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Editar {{ lote.nome_completo }}{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4">Editar lote {{ lote.nome_completo }}</h1>
+
+<form method="post" class="col-lg-6">
+  <div class="mb-3">
+    <label class="form-label">Descrição</label>
+    <input type="text" name="descricao" class="form-control" value="{{ lote.descricao }}">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Status</label>
+    <select name="status" class="form-select">
+      <option value="aberto" {{ "selected" if lote.status == "aberto" }}>Aberto</option>
+      <option value="encerrado" {{ "selected" if lote.status == "encerrado" }}>Encerrado</option>
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Percentual da parceria (%)</label>
+    <input type="number" step="0.01" name="percentual_parceria" class="form-control" value="{{ lote.percentual_parceria }}">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Outras despesas do lote (para lucro líquido)</label>
+    <input type="number" step="0.01" name="despesas_extras" class="form-control" value="{{ lote.despesas_extras }}">
+  </div>
+  <button type="submit" class="btn btn-primary">Salvar</button>
+  <a href="{{ url_for('lotes.detalhe', lote_id=lote.id) }}" class="btn btn-link">Cancelar</a>
+</form>
+{% endblock %}

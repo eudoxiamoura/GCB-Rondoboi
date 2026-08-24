@@ -1,0 +1,50 @@
+.card-metric {
+  border: none;
+  border-radius: .5rem;
+  background: #f8f9fa;
+}
+
+.card-metric .valor {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.card-metric.lucro-positivo .valor {
+  color: #198754;
+}
+
+.card-metric.lucro-negativo .valor {
+  color: #dc3545;
+}
+
+.badge-rascunho {
+  background: #ffc107;
+  color: #212529;
+}
+
+/* Ajustes para telas de celular */
+@media (max-width: 575.98px) {
+  .card-metric .valor {
+    font-size: 1.15rem;
+  }
+
+  .card-metric .small {
+    font-size: .7rem;
+  }
+
+  .btn {
+    min-height: 44px;
+  }
+
+  table.table-sm td,
+  table.table-sm th {
+    padding: .4rem .3rem;
+    font-size: .85rem;
+  }
+}
+
+/* Inputs em tamanho legível e sem zoom automático no iOS */
+input.form-control,
+select.form-select {
+  font-size: 16px;
+}

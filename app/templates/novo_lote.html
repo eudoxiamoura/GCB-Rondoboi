@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Novo lote{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4">Novo lote</h1>
+
+<form method="post" class="col-lg-6">
+  <div class="mb-3">
+    <label class="form-label">Número do lote</label>
+    <input type="text" class="form-control" value="{{ proximo_numero }}" disabled>
+    <div class="form-text">Gerado automaticamente.</div>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Descrição</label>
+    <input type="text" name="descricao" class="form-control" placeholder="Ex: Machos - Março">
+  </div>
+  <button type="submit" class="btn btn-primary">Criar lote</button>
+  <a href="{{ url_for('lotes.index') }}" class="btn btn-link">Cancelar</a>
+</form>
+{% endblock %}

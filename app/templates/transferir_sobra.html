@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Transferir sobra{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4">Transferir sobra do lote {{ lote.nome_completo }}</h1>
+
+<p>Sobra disponível: <strong>{{ resumo.sobra }}</strong> cabeça(s), compradas a um custo médio de
+  <strong>{{ resumo.custo_medio_cabeca | brl }}</strong> por cabeça.</p>
+
+<div class="alert alert-info">
+  O valor por cabeça informado abaixo é lançado como uma <strong>venda</strong> no lote
+  {{ lote.nome_completo }} (fechando o lucro dele com esse valor) e vira o
+  <strong>custo de entrada</strong> das cabeças no lote novo.
+</div>
+
+<form method="post" class="col-lg-6">
+  <div class="mb-3">
+    <label class="form-label">Número do novo lote</label>
+    <input type="text" class="form-control" value="{{ proximo_numero }}" disabled>
+    <div class="form-text">Gerado automaticamente.</div>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Descrição do novo lote</label>
+    <input type="text" name="descricao" class="form-control" placeholder="Ex: Machos - Abril">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Quantidade a transferir</label>
+    <input type="number" name="quantidade" class="form-control" value="{{ resumo.sobra }}" max="{{ resumo.sobra }}" min="1" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Valor por cabeça (quanto está custando)</label>
+    <input type="number" step="0.01" name="valor_unitario" class="form-control" value="{{ resumo.custo_medio_cabeca }}" min="{{ resumo.custo_medio_cabeca }}" required>
+    <div class="form-text">Não pode ser menor que o custo médio por cabeça deste lote ({{ resumo.custo_medio_cabeca | brl }}).</div>
+  </div>
+  <button type="submit" class="btn btn-primary">Transferir sobra</button>
+  <a href="{{ url_for('lotes.detalhe', lote_id=lote.id) }}" class="btn btn-link">Cancelar</a>
+</form>
+{% endblock %}
