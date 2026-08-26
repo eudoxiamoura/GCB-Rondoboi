@@ -48,3 +48,59 @@ input.form-control,
 select.form-select {
   font-size: 16px;
 }
+
+/* Cartões grandes de menu na página inicial */
+.menu-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 14px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  text-decoration: none;
+  color: inherit;
+  min-height: 88px;
+  transition: box-shadow .15s ease, transform .1s ease;
+}
+
+.menu-card:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .08);
+  color: inherit;
+}
+
+.menu-card:active {
+  transform: scale(0.98);
+}
+
+.menu-card.desabilitado {
+  opacity: .7;
+}
+
+.menu-card .menu-icone {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(13, 110, 253, .12);
+  color: #0d6efd;
+}
+
+.menu-card .menu-titulo {
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.menu-card .menu-subtitulo {
+  font-size: .85rem;
+  color: #6c757d;
+}
+
+.menu-card .menu-chevron {
+  margin-left: auto;
+  color: #adb5bd;
+  flex-shrink: 0;
+}

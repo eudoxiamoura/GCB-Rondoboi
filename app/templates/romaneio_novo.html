@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Novo romaneio{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4">Novo romaneio</h1>
+
+<form method="post" class="col-12 col-lg-6">
+  <label class="form-label d-block mb-2">Como calcular o valor?</label>
+  <div class="d-flex flex-column flex-sm-row gap-2 mb-4">
+    <input type="radio" class="btn-check" name="tipo_calculo" id="tipoPeso" value="peso" autocomplete="off" checked>
+    <label class="btn btn-outline-primary flex-fill py-3" for="tipoPeso">
+      <div class="fw-semibold">Por peso</div>
+      <div class="small">R$ por kg</div>
+    </label>
+
+    <input type="radio" class="btn-check" name="tipo_calculo" id="tipoArroba" value="arroba" autocomplete="off">
+    <label class="btn btn-outline-primary flex-fill py-3" for="tipoArroba">
+      <div class="fw-semibold">Por arroba</div>
+      <div class="small">R$ por @ (15 kg)</div>
+    </label>
+  </div>
+
+  <div class="mb-4">
+    <label class="form-label" id="labelValor">Valor por kg</label>
+    <input type="number" step="0.01" name="valor_unitario" class="form-control form-control-lg" required>
+  </div>
+
+  <button type="submit" class="btn btn-primary btn-lg w-100">Iniciar pesagem</button>
+  <a href="{{ url_for('romaneio.index') }}" class="btn btn-link w-100">Cancelar</a>
+</form>
+
+<script>
+  document.querySelectorAll('input[name="tipo_calculo"]').forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      document.getElementById('labelValor').textContent =
+        this.value === 'arroba' ? 'Valor por arroba (R$/@)' : 'Valor por kg (R$/kg)';
+    });
+  });
+</script>
+{% endblock %}

@@ -1,7 +1,7 @@
 import os
 
-from flask import Flask, redirect, url_for
-from flask_login import LoginManager
+from flask import Flask, render_template
+from flask_login import LoginManager, login_required
 from flask_sqlalchemy import SQLAlchemy
 
 from config import Config
@@ -26,11 +26,13 @@ def create_app(config_class=Config):
     from app.routes.lotes import lotes_bp
     from app.routes.compras import compras_bp
     from app.routes.vendas import vendas_bp
+    from app.routes.romaneio import romaneio_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(lotes_bp)
     app.register_blueprint(compras_bp)
     app.register_blueprint(vendas_bp)
+    app.register_blueprint(romaneio_bp)
 
     from app import models  # noqa: F401 - garante que os modelos sejam registrados
 
@@ -42,8 +44,9 @@ def create_app(config_class=Config):
         db.create_all()
 
     @app.route("/")
+    @login_required
     def index():
-        return redirect(url_for("lotes.index"))
+        return render_template("inicio.html")
 
     from app.calculos import formatar_brl
 

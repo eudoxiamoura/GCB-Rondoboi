@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Início{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-4">O que você quer fazer?</h1>
+
+<div class="d-flex flex-column gap-3 col-12 col-lg-6">
+
+  <a href="{{ url_for('lotes.novo') }}" class="menu-card">
+    <div class="menu-icone">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+    </div>
+    <div>
+      <div class="menu-titulo">Novo lote</div>
+      <div class="menu-subtitulo">Registrar um lote de animais novo</div>
+    </div>
+    <div class="menu-chevron">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+    </div>
+  </a>
+
+  <a href="{{ url_for('romaneio.index') }}" class="menu-card">
+    <div class="menu-icone">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 3h8a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
+        <path d="M9 7h6M9 11h6M9 15h4"/>
+      </svg>
+    </div>
+    <div>
+      <div class="menu-titulo">Registro de romaneio</div>
+      <div class="menu-subtitulo">Pesagem individual de animais</div>
+    </div>
+    <div class="menu-chevron">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+    </div>
+  </a>
+
+  <a href="{{ url_for('lotes.index') }}" class="menu-card">
+    <div class="menu-icone">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 3v18h18"/>
+        <path d="M7 15v3M12 10v8M17 6v12"/>
+      </svg>
+    </div>
+    <div>
+      <div class="menu-titulo">Relatório geral</div>
+      <div class="menu-subtitulo">Ver todos os lotes e seus resultados</div>
+    </div>
+    <div class="menu-chevron">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+    </div>
+  </a>
+
+</div>
+{% endblock %}

@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -116,3 +116,35 @@ class SobraTransferida(db.Model):
     custo_medio_herdado = db.Column(db.Float, nullable=False, default=0.0)
 
     lote_origem = db.relationship("Lote", foreign_keys=[lote_origem_id])
+
+
+class Romaneio(db.Model):
+    __tablename__ = "romaneios"
+
+    id = db.Column(db.Integer, primary_key=True)
+    numero = db.Column(db.String(20), nullable=False)
+    data_criacao = db.Column(db.Date, nullable=False, default=date.today)
+    tipo_calculo = db.Column(db.String(10), nullable=False)  # "peso" | "arroba"
+    valor_unitario = db.Column(db.Float, nullable=False, default=0.0)
+    status = db.Column(db.String(20), nullable=False, default="em_andamento")  # em_andamento | finalizado
+
+    pesagens = db.relationship(
+        "PesagemIndividual",
+        backref="romaneio",
+        cascade="all, delete-orphan",
+        lazy=True,
+        order_by="PesagemIndividual.id",
+    )
+
+    @property
+    def nome_completo(self):
+        return f"Romaneio {self.numero}"
+
+
+class PesagemIndividual(db.Model):
+    __tablename__ = "pesagens_individuais"
+
+    id = db.Column(db.Integer, primary_key=True)
+    romaneio_id = db.Column(db.Integer, db.ForeignKey("romaneios.id"), nullable=False)
+    peso = db.Column(db.Float, nullable=False)
+    criado_em = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)

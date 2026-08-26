@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Romaneio {{ romaneio.numero }}{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('romaneio.index') }}" class="d-inline-flex align-items-center gap-1 text-decoration-none mb-2 small">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+  Romaneios
+</a>
+
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h1 class="h3 mb-0">Romaneio {{ romaneio.numero }}</h1>
+    <div class="text-muted">
+      {{ romaneio.data_criacao.strftime('%d/%m/%Y') }} ·
+      {% if romaneio.tipo_calculo == 'arroba' %}
+        por arroba ({{ romaneio.valor_unitario | brl }}/@)
+      {% else %}
+        por peso ({{ romaneio.valor_unitario | brl }}/kg)
+      {% endif %}
+    </div>
+  </div>
+  <span class="badge {{ 'bg-primary' if romaneio.status == 'em_andamento' else 'bg-secondary' }}">
+    {{ 'Em andamento' if romaneio.status == 'em_andamento' else 'Finalizado' }}
+  </span>
+</div>
+
+{% if romaneio.status == 'em_andamento' %}
+<div class="alert alert-info d-flex justify-content-between align-items-center flex-wrap gap-2">
+  <div>Pesagem em andamento — {{ resumo.quantidade_animais }} animal(is) pesado(s) até agora.</div>
+  <a href="{{ url_for('romaneio.pesar', romaneio_id=romaneio.id) }}" class="btn btn-primary btn-sm">Continuar pesagem</a>
+</div>
+{% else %}
+<div class="d-flex justify-content-end mb-3">
+  <form method="post" action="{{ url_for('romaneio.reabrir', romaneio_id=romaneio.id) }}">
+    <button type="submit" class="btn btn-outline-secondary btn-sm">Reabrir pesagem</button>
+  </form>
+</div>
+{% endif %}
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="card card-metric p-3">
+      <div class="small text-muted">Quantidade de animais</div>
+      <div class="valor">{{ resumo.quantidade_animais }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card card-metric p-3">
+      <div class="small text-muted">Peso total</div>
+      <div class="valor">{{ "%.1f"|format(resumo.peso_total) }} kg</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card card-metric p-3">
+      <div class="small text-muted">Quantidade de arrobas</div>
+      <div class="valor">{{ "%.2f"|format(resumo.arrobas) }} @</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card card-metric p-3">
+      <div class="small text-muted">Média por animal</div>
+      <div class="valor">{{ "%.1f"|format(resumo.media_peso) if resumo.media_peso is not none else "—" }} kg</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card card-metric p-3">
+      <div class="small text-muted">Menor peso</div>
+      <div class="valor">{{ "%.1f"|format(resumo.menor_peso) if resumo.menor_peso is not none else "—" }} kg</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card card-metric p-3">
+      <div class="small text-muted">Maior peso</div>
+      <div class="valor">{{ "%.1f"|format(resumo.maior_peso) if resumo.maior_peso is not none else "—" }} kg</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card card-metric p-3">
+      <div class="small text-muted">Valor total</div>
+      <div class="valor">{{ resumo.valor_total | brl }}</div>
+    </div>
+  </div>
+</div>
+
+<h2 class="h5">Pesos registrados</h2>
+<div class="table-responsive">
+  <table class="table table-sm">
+    <thead>
+      <tr><th>#</th><th class="text-end">Peso</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for p in romaneio.pesagens %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td class="text-end">{{ "%.1f"|format(p.peso) }} kg</td>
+        <td class="text-end">
+          <form method="post" action="{{ url_for('romaneio.excluir_pesagem', romaneio_id=romaneio.id, pesagem_id=p.id) }}" onsubmit="return confirm('Remover este peso?');">
+            <button type="submit" class="btn btn-sm btn-outline-danger">×</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="3" class="text-muted">Nenhum peso registrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

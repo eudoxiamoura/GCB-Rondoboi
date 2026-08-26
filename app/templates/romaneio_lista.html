@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Romaneios{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('index') }}" class="d-inline-flex align-items-center gap-1 text-decoration-none mb-2 small">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+  Início
+</a>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h3 mb-0">Romaneios</h1>
+  <a href="{{ url_for('romaneio.novo') }}" class="btn btn-primary btn-sm">+ Novo romaneio</a>
+</div>
+
+{% if not romaneios %}
+  <p class="text-muted">Nenhum romaneio cadastrado ainda. <a href="{{ url_for('romaneio.novo') }}">Criar o primeiro</a>.</p>
+{% else %}
+<div class="d-flex flex-column gap-3">
+  {% for r in romaneios %}
+  {% set resumo = resumos[r.id] %}
+  <a href="{{ url_for('romaneio.pesar', romaneio_id=r.id) if r.status == 'em_andamento' else url_for('romaneio.detalhe', romaneio_id=r.id) }}" class="menu-card">
+    <div class="menu-icone">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3v4M3 21h18M5 21l2-10h10l2 10"/>
+        <circle cx="12" cy="9" r="2"/>
+      </svg>
+    </div>
+    <div>
+      <div class="menu-titulo">Romaneio {{ r.numero }}</div>
+      <div class="menu-subtitulo">
+        {{ resumo.quantidade_animais }} animal(is) · {{ r.data_criacao.strftime('%d/%m/%Y') }}
+        {% if r.status == 'em_andamento' %}
+          · <span class="text-primary">em andamento</span>
+        {% else %}
+          · {{ resumo.valor_total | brl }}
+        {% endif %}
+      </div>
+    </div>
+    <div class="menu-chevron">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
