@@ -15,8 +15,8 @@
     body { display: flex; flex-direction: column; background: #fff; }
     .peso-input {
       width: 100%;
-      max-width: 320px;
-      font-size: 4rem;
+      max-width: 260px;
+      font-size: 3.4rem;
       font-weight: 700;
       text-align: center;
       background: transparent;
@@ -28,9 +28,9 @@
   </style>
 </head>
 <body>
-  <div class="d-flex flex-column" style="flex:1;min-height:100vh;padding:16px;">
+  <div class="d-flex flex-column" style="flex:1;min-height:100vh;min-height:100dvh;padding:16px;">
 
-    <div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="d-flex justify-content-between align-items-center mb-3">
       <a href="{{ url_for('romaneio.index') }}" class="text-decoration-none text-muted small">
         ← Romaneio {{ romaneio.numero }}
       </a>
@@ -45,27 +45,33 @@
       {% endif %}
     {% endwith %}
 
-    <!-- Espaço 1: digitar o peso + Espaço 2: adicionar -->
-    <form method="post" action="{{ url_for('romaneio.adicionar_peso', romaneio_id=romaneio.id) }}" class="d-flex flex-column flex-fill">
-      <div class="flex-fill d-flex flex-column align-items-center justify-content-center gap-2">
-        {% if ultimo_peso is not none %}
-        <div class="text-muted small">último: {{ "%.1f"|format(ultimo_peso) }} kg</div>
-        {% endif %}
+    <!-- Espaço 1: digitar o peso + Espaço 2: adicionar — agrupados no topo,
+         pra não ficarem atrás do teclado numérico quando ele abre. -->
+    <form id="form-peso" method="post" action="{{ url_for('romaneio.adicionar_peso', romaneio_id=romaneio.id) }}" class="d-flex flex-column align-items-center gap-3">
+      {% if ultimo_peso is not none %}
+      <div class="text-muted small">último: {{ "%.1f"|format(ultimo_peso) }} kg</div>
+      {% endif %}
+
+      <div class="d-flex align-items-baseline gap-2">
         <input
           type="number"
           step="0.1"
           inputmode="decimal"
+          enterkeyhint="done"
           name="peso"
+          id="peso-input"
           class="peso-input"
           placeholder="0"
           autofocus
           required
         >
-        <div class="text-muted fs-4">kg</div>
+        <span class="text-muted fs-4">kg</span>
       </div>
 
-      <button type="submit" class="btn btn-primary btn-lg py-3 mb-2">+ Adicionar</button>
+      <button type="submit" class="btn btn-primary btn-lg w-100 py-3">+ Adicionar</button>
     </form>
+
+    <div class="flex-fill"></div>
 
     <!-- Espaço 3: finalizar a pesagem -->
     <form method="post" action="{{ url_for('romaneio.finalizar', romaneio_id=romaneio.id) }}"
@@ -74,5 +80,16 @@
     </form>
 
   </div>
+
+  <script>
+    // Deixa o "Enter"/"OK" do teclado numérico lançar o peso direto,
+    // sem precisar tocar no botão (que pode ficar coberto pelo teclado).
+    document.getElementById("peso-input").addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        document.getElementById("form-peso").requestSubmit();
+      }
+    });
+  </script>
 </body>
 </html>
