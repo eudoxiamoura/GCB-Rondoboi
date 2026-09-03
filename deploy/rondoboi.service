@@ -6,6 +6,7 @@ After=network.target
 User=root
 WorkingDirectory=/root/GCB-Rondoboi
 Environment="SECRET_KEY=COLE_A_CHAVE_GERADA_AQUI"
+Environment="DATABASE_URL=postgresql+psycopg://rondoboi:COLE_A_SENHA_DO_BANCO_AQUI@localhost/rondoboi"
 ExecStart=/root/GCB-Rondoboi/venv/bin/gunicorn -w 2 -b 127.0.0.1:8000 run:app
 Restart=always
 
