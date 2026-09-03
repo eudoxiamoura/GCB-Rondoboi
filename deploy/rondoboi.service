@@ -1,0 +1,13 @@
+[Unit]
+Description=Rondoboi - Comercio de Bovinos
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/root/GCB-Rondoboi
+Environment="SECRET_KEY=COLE_A_CHAVE_GERADA_AQUI"
+ExecStart=/root/GCB-Rondoboi/venv/bin/gunicorn -w 2 -b 127.0.0.1:8000 run:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
