@@ -8,6 +8,7 @@
       {{ lote.nome_completo }}
       {% if lote.is_rascunho %}<span class="badge badge-rascunho">rascunho</span>{% endif %}
       <span class="badge {{ 'bg-secondary' if lote.status == 'encerrado' else 'bg-success' }}">{{ lote.status }}</span>
+      <span class="badge {{ 'bg-warning' if lote.sexo == 'femea' else 'bg-success' }}">{{ 'fêmea' if lote.sexo == 'femea' else 'macho' }}</span>
     </h1>
     <div class="text-muted">Criado em {{ lote.data_criacao.strftime('%d/%m/%Y') }} · parceria {{ lote.percentual_parceria }}%</div>
   </div>
@@ -20,6 +21,10 @@
     {% if resumo.sobra > 0 %}
     <a class="btn btn-outline-primary btn-sm" href="{{ url_for('lotes.transferir_sobra', lote_id=lote.id) }}">Transferir sobra</a>
     {% endif %}
+    <form method="post" action="{{ url_for('lotes.excluir', lote_id=lote.id) }}" class="d-inline"
+          onsubmit="return confirm('Excluir o lote {{ lote.nome_completo }}? Essa ação não pode ser desfeita e vai apagar também as compras e vendas lançadas nele.');">
+      <button type="submit" class="btn btn-outline-danger btn-sm">Excluir lote</button>
+    </form>
   </div>
 </div>
 

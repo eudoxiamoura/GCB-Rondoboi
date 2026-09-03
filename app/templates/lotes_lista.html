@@ -29,6 +29,7 @@
       {% set resumo = resumos[lote.id] %}
       <tr>
         <td>
+          <span class="lote-dot {{ 'lote-dot-femea' if lote.sexo == 'femea' else 'lote-dot-macho' }}" title="{{ 'Fêmea' if lote.sexo == 'femea' else 'Macho' }}"></span>
           <a href="{{ url_for('lotes.detalhe', lote_id=lote.id) }}">{{ lote.nome_completo }}</a>
         </td>
         <td class="d-none d-md-table-cell">

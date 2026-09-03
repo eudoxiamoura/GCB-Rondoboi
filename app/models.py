@@ -30,6 +30,7 @@ class Lote(db.Model):
     descricao = db.Column(db.String(120), nullable=False, default="")
     data_criacao = db.Column(db.Date, nullable=False, default=date.today)
     status = db.Column(db.String(20), nullable=False, default="aberto")  # aberto | encerrado
+    sexo = db.Column(db.String(10), nullable=False, default="macho")  # macho | femea
     percentual_parceria = db.Column(db.Float, nullable=False, default=50.0)
     despesas_extras = db.Column(db.Float, nullable=False, default=0.0)
 

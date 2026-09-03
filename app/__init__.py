@@ -43,12 +43,31 @@ def create_app(config_class=Config):
     with app.app_context():
         db.create_all()
 
+    from app.calculos import formatar_brl, resumo_do_lote
+
     @app.route("/")
     @login_required
     def index():
-        return render_template("inicio.html")
+        lotes = models.Lote.query.filter_by(is_rascunho=False).all()
+        resumos = {lote.id: resumo_do_lote(lote) for lote in lotes}
+        total_lotes = len(lotes)
+        total_investido = sum(resumo.custo_total_lote for resumo in resumos.values())
+        total_estoque = sum(resumo.sobra for resumo in resumos.values())
 
-    from app.calculos import formatar_brl
+        lotes_abertos = [lote for lote in lotes if lote.status == "aberto"]
+        lotes_abertos.sort(key=lambda lote: lote.data_criacao, reverse=True)
+        lotes_machos = [lote for lote in lotes_abertos if lote.sexo == "macho"]
+        lotes_femeas = [lote for lote in lotes_abertos if lote.sexo == "femea"]
+
+        return render_template(
+            "inicio.html",
+            total_lotes=total_lotes,
+            total_investido=total_investido,
+            total_estoque=total_estoque,
+            resumos=resumos,
+            lotes_machos=lotes_machos,
+            lotes_femeas=lotes_femeas,
+        )
 
     @app.template_filter("brl")
     def brl(value):

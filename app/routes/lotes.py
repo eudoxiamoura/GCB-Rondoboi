@@ -34,10 +34,12 @@ def index():
 def novo():
     if request.method == "POST":
         descricao = request.form.get("descricao", "").strip()
+        sexo = request.form.get("sexo") if request.form.get("sexo") in ("macho", "femea") else "macho"
 
         lote = Lote(
             numero=_proximo_numero_lote(),
             descricao=descricao,
+            sexo=sexo,
             data_criacao=date.today(),
         )
         db.session.add(lote)
@@ -55,11 +57,33 @@ def detalhe(lote_id):
     return render_template("lote_detalhe.html", lote=lote, resumo=resumo)
 
 
+@lotes_bp.route("/<int:lote_id>/excluir", methods=["POST"])
+def excluir(lote_id):
+    lote = Lote.query.get_or_404(lote_id)
+
+    sobra_transferida_para = SobraTransferida.query.filter_by(lote_origem_id=lote.id).first()
+    if sobra_transferida_para is not None:
+        flash(
+            f"Não é possível excluir: a sobra deste lote já foi transferida para o lote "
+            f"{sobra_transferida_para.lote_destino.nome_completo}.",
+            "erro",
+        )
+        return redirect(url_for("lotes.detalhe", lote_id=lote.id))
+
+    nome = lote.nome_completo
+    db.session.delete(lote)
+    db.session.commit()
+    flash(f"Lote {nome} excluído.", "sucesso")
+    return redirect(url_for("lotes.index"))
+
+
 @lotes_bp.route("/<int:lote_id>/editar", methods=["GET", "POST"])
 def editar(lote_id):
     lote = Lote.query.get_or_404(lote_id)
     if request.method == "POST":
         lote.descricao = request.form.get("descricao", "").strip()
+        if request.form.get("sexo") in ("macho", "femea"):
+            lote.sexo = request.form.get("sexo")
         lote.percentual_parceria = float(request.form.get("percentual_parceria") or 50.0)
         lote.despesas_extras = float(request.form.get("despesas_extras") or 0.0)
         lote.status = request.form.get("status", lote.status)
@@ -80,6 +104,7 @@ def duplicar(lote_id):
         descricao=original.descricao,
         data_criacao=date.today(),
         status="aberto",
+        sexo=original.sexo,
         percentual_parceria=original.percentual_parceria,
         despesas_extras=original.despesas_extras,
         is_rascunho=True,
@@ -162,6 +187,7 @@ def transferir_sobra(lote_id):
         novo_lote = Lote(
             numero=_proximo_numero_lote(),
             descricao=descricao,
+            sexo=origem.sexo,
             data_criacao=date.today(),
         )
         db.session.add(novo_lote)

@@ -14,6 +14,16 @@
     <label class="form-label">Descrição</label>
     <input type="text" name="descricao" class="form-control" placeholder="Ex: Machos - Março">
   </div>
+  <div class="mb-3">
+    <label class="form-label d-block">Sexo do lote</label>
+    <div class="btn-group" role="group">
+      <input type="radio" class="btn-check" name="sexo" id="sexo-macho" value="macho" autocomplete="off" checked>
+      <label class="btn btn-outline-success" for="sexo-macho">Macho</label>
+
+      <input type="radio" class="btn-check" name="sexo" id="sexo-femea" value="femea" autocomplete="off">
+      <label class="btn btn-outline-warning" for="sexo-femea">Fêmea</label>
+    </div>
+  </div>
   <button type="submit" class="btn btn-primary">Criar lote</button>
   <a href="{{ url_for('lotes.index') }}" class="btn btn-link">Cancelar</a>
 </form>

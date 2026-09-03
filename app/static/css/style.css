@@ -1,3 +1,116 @@
+/* Paleta inspirada na bandeira de Rondônia: azul (rios), verde (mata) e
+   amarelo-ouro (riquezas minerais) */
+:root {
+  --ro-azul: #0a3d91;
+  --ro-azul-escuro: #082d6b;
+  --ro-verde: #1e8449;
+  --ro-verde-escuro: #166638;
+  --ro-amarelo: #ffc800;
+  --ro-amarelo-escuro: #e6b400;
+}
+
+/* Base de fonte maior em todo o sistema (escala junto todo o rem do Bootstrap:
+   textos, espaçamentos, botões, cards, etc.) */
+html {
+  font-size: 18px;
+}
+
+body {
+  line-height: 1.5;
+}
+
+/* Alvos de toque confortáveis em qualquer tamanho de tela, não só no celular */
+.btn {
+  min-height: 44px;
+}
+
+/* Aplica a paleta da bandeira nos componentes do Bootstrap (cores vêm
+   fixas no CSS compilado do CDN, por isso sobrescrevemos aqui) */
+.navbar.bg-dark {
+  background-color: var(--ro-azul) !important;
+}
+
+a {
+  color: var(--ro-azul);
+}
+
+a:hover {
+  color: var(--ro-azul-escuro);
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--ro-azul);
+  --bs-btn-border-color: var(--ro-azul);
+  --bs-btn-hover-bg: var(--ro-azul-escuro);
+  --bs-btn-hover-border-color: var(--ro-azul-escuro);
+  --bs-btn-active-bg: var(--ro-azul-escuro);
+  --bs-btn-active-border-color: var(--ro-azul-escuro);
+  --bs-btn-disabled-bg: var(--ro-azul);
+  --bs-btn-disabled-border-color: var(--ro-azul);
+  --bs-btn-focus-shadow-rgb: 10, 61, 145;
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--ro-azul);
+  --bs-btn-border-color: var(--ro-azul);
+  --bs-btn-hover-bg: var(--ro-azul);
+  --bs-btn-hover-border-color: var(--ro-azul);
+  --bs-btn-active-bg: var(--ro-azul);
+  --bs-btn-active-border-color: var(--ro-azul);
+}
+
+.btn-success {
+  --bs-btn-bg: var(--ro-verde);
+  --bs-btn-border-color: var(--ro-verde);
+  --bs-btn-hover-bg: var(--ro-verde-escuro);
+  --bs-btn-hover-border-color: var(--ro-verde-escuro);
+  --bs-btn-active-bg: var(--ro-verde-escuro);
+  --bs-btn-active-border-color: var(--ro-verde-escuro);
+}
+
+.btn-outline-success {
+  --bs-btn-color: var(--ro-verde);
+  --bs-btn-border-color: var(--ro-verde);
+  --bs-btn-hover-bg: var(--ro-verde);
+  --bs-btn-hover-border-color: var(--ro-verde);
+  --bs-btn-active-bg: var(--ro-verde);
+  --bs-btn-active-border-color: var(--ro-verde);
+}
+
+.btn-warning {
+  --bs-btn-bg: var(--ro-amarelo);
+  --bs-btn-border-color: var(--ro-amarelo);
+  --bs-btn-hover-bg: var(--ro-amarelo-escuro);
+  --bs-btn-hover-border-color: var(--ro-amarelo-escuro);
+  --bs-btn-active-bg: var(--ro-amarelo-escuro);
+  --bs-btn-active-border-color: var(--ro-amarelo-escuro);
+}
+
+.btn-outline-warning {
+  --bs-btn-color: var(--ro-amarelo-escuro);
+  --bs-btn-border-color: var(--ro-amarelo);
+  --bs-btn-hover-bg: var(--ro-amarelo);
+  --bs-btn-hover-border-color: var(--ro-amarelo);
+  --bs-btn-hover-color: #212529;
+  --bs-btn-active-bg: var(--ro-amarelo);
+  --bs-btn-active-border-color: var(--ro-amarelo);
+  --bs-btn-active-color: #212529;
+}
+
+.bg-success {
+  background-color: var(--ro-verde) !important;
+}
+
+.text-success {
+  color: var(--ro-verde) !important;
+}
+
+.badge-rascunho,
+.bg-warning {
+  background-color: var(--ro-amarelo) !important;
+  color: #212529 !important;
+}
+
 .card-metric {
   border: none;
   border-radius: .5rem;
@@ -10,43 +123,43 @@
 }
 
 .card-metric.lucro-positivo .valor {
-  color: #198754;
+  color: var(--ro-verde);
 }
 
 .card-metric.lucro-negativo .valor {
   color: #dc3545;
 }
 
-.badge-rascunho {
-  background: #ffc107;
-  color: #212529;
+/* Ajustes para tablets e telas médias */
+@media (max-width: 767.98px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 }
 
 /* Ajustes para telas de celular */
 @media (max-width: 575.98px) {
   .card-metric .valor {
-    font-size: 1.15rem;
+    font-size: 1.25rem;
   }
 
   .card-metric .small {
-    font-size: .7rem;
-  }
-
-  .btn {
-    min-height: 44px;
+    font-size: .8rem;
   }
 
   table.table-sm td,
   table.table-sm th {
-    padding: .4rem .3rem;
-    font-size: .85rem;
+    padding: .5rem .4rem;
+    font-size: .9rem;
   }
 }
 
-/* Inputs em tamanho legível e sem zoom automático no iOS */
+/* Inputs no mesmo tamanho do texto do corpo (1rem = 18px, acima do limiar
+   de 16px que evita zoom automático no iOS) */
 input.form-control,
 select.form-select {
-  font-size: 16px;
+  font-size: 1rem;
 }
 
 /* Cartões grandes de menu na página inicial */
@@ -85,17 +198,17 @@ select.form-select {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(13, 110, 253, .12);
-  color: #0d6efd;
+  background: rgba(10, 61, 145, .12);
+  color: var(--ro-azul);
 }
 
 .menu-card .menu-titulo {
   font-weight: 600;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
 }
 
 .menu-card .menu-subtitulo {
-  font-size: .85rem;
+  font-size: .9rem;
   color: #6c757d;
 }
 
@@ -103,4 +216,47 @@ select.form-select {
   margin-left: auto;
   color: #adb5bd;
   flex-shrink: 0;
+}
+
+/* Lotes em aberto na página inicial, separados por sexo:
+   verde para macho, amarelo para fêmea */
+.lote-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.lote-dot-macho {
+  background: var(--ro-verde);
+}
+
+.lote-dot-femea {
+  background: var(--ro-amarelo);
+}
+
+.lote-card {
+  display: block;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #e9ecef;
+  border-left: 5px solid transparent;
+  background: #f8f9fa;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow .15s ease;
+}
+
+.lote-card:hover {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .08);
+  color: inherit;
+}
+
+.lote-card-macho {
+  border-left-color: var(--ro-verde);
+}
+
+.lote-card-femea {
+  border-left-color: var(--ro-amarelo);
 }

@@ -2,56 +2,78 @@
 {% block title %}Início{% endblock %}
 
 {% block content %}
-<h1 class="h4 mb-4">O que você quer fazer?</h1>
-
-<div class="d-flex flex-column gap-3 col-12 col-lg-6">
-
-  <a href="{{ url_for('lotes.novo') }}" class="menu-card">
-    <div class="menu-icone">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 5v14M5 12h14"/>
-      </svg>
-    </div>
-    <div>
-      <div class="menu-titulo">Novo lote</div>
-      <div class="menu-subtitulo">Registrar um lote de animais novo</div>
-    </div>
-    <div class="menu-chevron">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-    </div>
-  </a>
-
-  <a href="{{ url_for('romaneio.index') }}" class="menu-card">
-    <div class="menu-icone">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M8 3h8a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
-        <path d="M9 7h6M9 11h6M9 15h4"/>
-      </svg>
-    </div>
-    <div>
-      <div class="menu-titulo">Registro de romaneio</div>
-      <div class="menu-subtitulo">Pesagem individual de animais</div>
-    </div>
-    <div class="menu-chevron">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-    </div>
-  </a>
-
-  <a href="{{ url_for('lotes.index') }}" class="menu-card">
-    <div class="menu-icone">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 3v18h18"/>
-        <path d="M7 15v3M12 10v8M17 6v12"/>
-      </svg>
-    </div>
-    <div>
-      <div class="menu-titulo">Relatório geral</div>
-      <div class="menu-subtitulo">Ver todos os lotes e seus resultados</div>
-    </div>
-    <div class="menu-chevron">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-    </div>
-  </a>
-
+<div class="d-flex flex-wrap justify-content-end align-items-center gap-2 mb-3">
+  <a href="{{ url_for('lotes.novo') }}" class="btn btn-primary">+ Novo lote</a>
 </div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-sm-4">
+    <div class="card card-metric p-3">
+      <div class="small text-muted">Lotes registrados</div>
+      <div class="valor">{{ total_lotes }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-sm-4">
+    <div class="card card-metric p-3">
+      <div class="small text-muted">Cabeças em estoque</div>
+      <div class="valor">{{ total_estoque }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-sm-4">
+    <div class="card card-metric p-3">
+      <div class="small text-muted">Total investido</div>
+      <div class="valor">{{ total_investido | brl }}</div>
+    </div>
+  </div>
+</div>
+
+<h2 class="h5 mb-3">Lotes em aberto</h2>
+
+{% if not lotes_machos and not lotes_femeas %}
+  <p class="text-muted">Nenhum lote em aberto no momento.</p>
+{% else %}
+<div class="row g-4">
+  <div class="col-12 col-lg-6">
+    <h3 class="h6 d-flex align-items-center gap-2 mb-3">
+      <span class="lote-dot lote-dot-macho"></span> Machos
+    </h3>
+    {% if not lotes_machos %}
+      <p class="text-muted small">Nenhum lote de machos em aberto.</p>
+    {% else %}
+      <div class="d-flex flex-column gap-2">
+        {% for lote in lotes_machos %}
+        {% set resumo = resumos[lote.id] %}
+        <a href="{{ url_for('lotes.detalhe', lote_id=lote.id) }}" class="lote-card lote-card-macho">
+          <div class="fw-semibold">{{ lote.nome_completo }}</div>
+          <div class="small text-muted">
+            {{ resumo.total_cabecas_compradas }} cabeça(s) · custo médio {{ resumo.custo_medio_cabeca | brl }}
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="col-12 col-lg-6">
+    <h3 class="h6 d-flex align-items-center gap-2 mb-3">
+      <span class="lote-dot lote-dot-femea"></span> Fêmeas
+    </h3>
+    {% if not lotes_femeas %}
+      <p class="text-muted small">Nenhum lote de fêmeas em aberto.</p>
+    {% else %}
+      <div class="d-flex flex-column gap-2">
+        {% for lote in lotes_femeas %}
+        {% set resumo = resumos[lote.id] %}
+        <a href="{{ url_for('lotes.detalhe', lote_id=lote.id) }}" class="lote-card lote-card-femea">
+          <div class="fw-semibold">{{ lote.nome_completo }}</div>
+          <div class="small text-muted">
+            {{ resumo.total_cabecas_compradas }} cabeça(s) · custo médio {{ resumo.custo_medio_cabeca | brl }}
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
 {% endblock %}
