@@ -1,15 +1,24 @@
 {% extends "base.html" %}
-{% block title %}Relatório geral{% endblock %}
+{% block title %}{{ "Lotes em aberto" if status_filtro == "aberto" else "Relatório geral" }}{% endblock %}
 
 {% block content %}
 <a href="{{ url_for('index') }}" class="d-inline-flex align-items-center gap-1 text-decoration-none mb-2 small">
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
   Início
 </a>
-<h1 class="h3 mb-4">Relatório geral</h1>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <h1 class="h3 mb-0">{{ "Lotes em aberto" if status_filtro == "aberto" else "Relatório geral" }}</h1>
+  {% if status_filtro %}
+    <a href="{{ url_for('lotes.index') }}" class="btn btn-outline-secondary btn-sm">Ver todos os lotes</a>
+  {% endif %}
+</div>
 
 {% if not lotes %}
-  <p class="text-muted">Nenhum lote cadastrado ainda. <a href="{{ url_for('lotes.novo') }}">Criar o primeiro lote</a>.</p>
+  {% if status_filtro == "aberto" %}
+    <p class="text-muted">Nenhum lote em aberto no momento.</p>
+  {% else %}
+    <p class="text-muted">Nenhum lote cadastrado ainda. <a href="{{ url_for('lotes.novo') }}">Criar o primeiro lote</a>.</p>
+  {% endif %}
 {% else %}
 <div class="table-responsive">
   <table class="table table-hover align-middle">

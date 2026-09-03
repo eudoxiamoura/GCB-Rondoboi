@@ -6,10 +6,15 @@ from flask_login import login_required
 
 from app import db
 from app.calculos import formatar_brl, resumo_do_lote
-from app.models import Lote, SobraTransferida, Venda
+from app.models import Compra, Lote, SobraTransferida, Venda
 
 lotes_bp = Blueprint("lotes", __name__, url_prefix="/lotes")
 lotes_bp.before_request(login_required(lambda: None))
+
+MESES_PT = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
+]
 
 
 def _proximo_numero_lote():
@@ -23,11 +28,71 @@ def _proximo_numero_lote():
     return f"{maior + 1:03d}"
 
 
+def _parse_data_compra(valor):
+    if not valor:
+        return date.today()
+    return date.fromisoformat(valor)
+
+
 @lotes_bp.route("/")
 def index():
-    lotes = Lote.query.filter_by(is_rascunho=False).order_by(Lote.data_criacao.desc()).all()
+    status_filtro = request.args.get("status")
+    query = Lote.query.filter_by(is_rascunho=False)
+    if status_filtro in ("aberto", "encerrado"):
+        query = query.filter_by(status=status_filtro)
+    lotes = query.order_by(Lote.data_criacao.desc()).all()
     resumos = {lote.id: resumo_do_lote(lote) for lote in lotes}
-    return render_template("lotes_lista.html", lotes=lotes, resumos=resumos)
+    return render_template("lotes_lista.html", lotes=lotes, resumos=resumos, status_filtro=status_filtro)
+
+
+@lotes_bp.route("/comprar", methods=["GET", "POST"])
+def comprar():
+    """Lança uma compra sem precisar escolher o lote: cai automaticamente
+    no lote em aberto do sexo escolhido (ou cria um novo, se não houver)."""
+    if request.method == "POST":
+        sexo = request.form.get("sexo")
+        if sexo not in ("macho", "femea"):
+            flash("Selecione se a compra é de machos ou fêmeas.", "erro")
+            return render_template("nova_compra.html")
+
+        fornecedor = request.form.get("fornecedor", "").strip()
+        quantidade = int(request.form.get("quantidade") or 0)
+
+        if not fornecedor or quantidade <= 0:
+            flash("Informe o fornecedor e uma quantidade válida.", "erro")
+            return render_template("nova_compra.html")
+
+        lote = (
+            Lote.query.filter_by(status="aberto", sexo=sexo, is_rascunho=False)
+            .order_by(Lote.data_criacao.desc())
+            .first()
+        )
+        if lote is None:
+            hoje = date.today()
+            lote = Lote(
+                numero=_proximo_numero_lote(),
+                descricao=f"{'Machos' if sexo == 'macho' else 'Fêmeas'} - {MESES_PT[hoje.month - 1]}",
+                sexo=sexo,
+                data_criacao=hoje,
+            )
+            db.session.add(lote)
+            db.session.flush()
+
+        db.session.add(Compra(
+            lote_id=lote.id,
+            data=_parse_data_compra(request.form.get("data")),
+            fornecedor=fornecedor,
+            quantidade=quantidade,
+            valor_unitario=float(request.form.get("valor_unitario") or 0.0),
+            frete=float(request.form.get("frete") or 0.0),
+            comissao=float(request.form.get("comissao") or 0.0),
+            outras_despesas=float(request.form.get("outras_despesas") or 0.0),
+        ))
+        db.session.commit()
+        flash(f"Compra lançada no lote {lote.nome_completo}.", "sucesso")
+        return redirect(url_for("lotes.detalhe", lote_id=lote.id))
+
+    return render_template("nova_compra.html")
 
 
 @lotes_bp.route("/novo", methods=["GET", "POST"])

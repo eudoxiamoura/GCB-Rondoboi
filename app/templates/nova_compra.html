@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Nova compra{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4">Nova compra</h1>
+
+<form method="post" class="col-lg-6">
+  <div class="mb-4">
+    <label class="form-label d-block">Machos ou fêmeas?</label>
+    <div class="btn-group" role="group">
+      <input type="radio" class="btn-check" name="sexo" id="sexo-macho" value="macho" autocomplete="off"
+             {{ "checked" if request.form.get("sexo") != "femea" }}>
+      <label class="btn btn-outline-success" for="sexo-macho">Macho</label>
+
+      <input type="radio" class="btn-check" name="sexo" id="sexo-femea" value="femea" autocomplete="off"
+             {{ "checked" if request.form.get("sexo") == "femea" }}>
+      <label class="btn btn-outline-warning" for="sexo-femea">Fêmea</label>
+    </div>
+    <div class="form-text">A compra entra automaticamente no lote em aberto desse sexo. Se não houver nenhum, um lote novo é criado.</div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-sm-6">
+      <label class="form-label">Data</label>
+      <input type="date" name="data" class="form-control" value="{{ request.form.get('data', '') }}">
+    </div>
+    <div class="col-12 col-sm-6">
+      <label class="form-label">Fornecedor</label>
+      <input type="text" name="fornecedor" class="form-control" value="{{ request.form.get('fornecedor', '') }}" required>
+    </div>
+    <div class="col-6">
+      <label class="form-label">Quantidade</label>
+      <input type="number" name="quantidade" class="form-control" value="{{ request.form.get('quantidade', '') }}" required>
+    </div>
+    <div class="col-6">
+      <label class="form-label">Valor unitário</label>
+      <input type="number" step="0.01" name="valor_unitario" class="form-control" value="{{ request.form.get('valor_unitario', '') }}" required>
+    </div>
+    <div class="col-6 col-sm-4">
+      <label class="form-label">Frete</label>
+      <input type="number" step="0.01" name="frete" class="form-control" value="{{ request.form.get('frete', '0') }}">
+    </div>
+    <div class="col-6 col-sm-4">
+      <label class="form-label">Comissão</label>
+      <input type="number" step="0.01" name="comissao" class="form-control" value="{{ request.form.get('comissao', '0') }}">
+    </div>
+    <div class="col-12 col-sm-4">
+      <label class="form-label">Outras despesas</label>
+      <input type="number" step="0.01" name="outras_despesas" class="form-control" value="{{ request.form.get('outras_despesas', '0') }}">
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <button type="submit" class="btn btn-primary">Lançar compra</button>
+    <a href="{{ url_for('index') }}" class="btn btn-link">Cancelar</a>
+  </div>
+</form>
+{% endblock %}
