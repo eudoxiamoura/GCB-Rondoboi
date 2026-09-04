@@ -34,6 +34,43 @@ def _parse_data_compra(valor):
     return date.fromisoformat(valor)
 
 
+@lotes_bp.route("/visao-geral")
+def visao_geral():
+    lotes = Lote.query.filter_by(is_rascunho=False).order_by(Lote.data_criacao).all()
+    resumos = {lote.id: resumo_do_lote(lote) for lote in lotes}
+
+    total_lotes = len(lotes)
+    total_movimentado = sum(resumo.custo_total_lote for resumo in resumos.values())
+
+    lotes_grafico = [
+        {
+            "numero": lote.numero,
+            "sexo": lote.sexo,
+            "custo_total": resumos[lote.id].custo_total_lote,
+            "lucro_liquido": resumos[lote.id].lucro_liquido,
+        }
+        for lote in lotes
+    ]
+
+    machos = [lote for lote in lotes if lote.sexo == "macho"]
+    femeas = [lote for lote in lotes if lote.sexo == "femea"]
+
+    resumo_sexo = {
+        "cabecas_macho": sum(resumos[l.id].total_cabecas_compradas for l in machos),
+        "cabecas_femea": sum(resumos[l.id].total_cabecas_compradas for l in femeas),
+        "investido_macho": sum(resumos[l.id].custo_total_lote for l in machos),
+        "investido_femea": sum(resumos[l.id].custo_total_lote for l in femeas),
+    }
+
+    return render_template(
+        "visao_geral.html",
+        total_lotes=total_lotes,
+        total_movimentado=total_movimentado,
+        lotes_grafico=lotes_grafico,
+        resumo_sexo=resumo_sexo,
+    )
+
+
 @lotes_bp.route("/")
 def index():
     status_filtro = request.args.get("status")

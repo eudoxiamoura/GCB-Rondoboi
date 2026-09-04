@@ -3,30 +3,19 @@
 
 {% block content %}
 <div class="d-flex flex-wrap justify-content-end align-items-center gap-2 mb-3">
+  <a href="{{ url_for('lotes.visao_geral') }}" class="btn btn-outline-secondary">Visão geral</a>
   <a href="{{ url_for('lotes.index', status='aberto') }}" class="btn btn-outline-primary">Ver lotes em aberto</a>
   <a href="{{ url_for('lotes.comprar') }}" class="btn btn-primary">+ Nova compra</a>
 </div>
 
 <div class="row g-3 mb-4">
-  <div class="col-6 col-sm-3">
-    <div class="card card-metric p-3">
-      <div class="small text-muted">Lotes registrados</div>
-      <div class="valor">{{ total_lotes }}</div>
-    </div>
-  </div>
-  <div class="col-6 col-sm-3">
+  <div class="col-6 col-sm-6">
     <div class="card card-metric p-3">
       <div class="small text-muted">Cabeças em estoque</div>
       <div class="valor">{{ total_estoque }}</div>
     </div>
   </div>
-  <div class="col-6 col-sm-3">
-    <div class="card card-metric p-3">
-      <div class="small text-muted">Total movimentado</div>
-      <div class="valor">{{ total_movimentado | brl }}</div>
-    </div>
-  </div>
-  <div class="col-6 col-sm-3">
+  <div class="col-6 col-sm-6">
     <div class="card card-metric p-3">
       <div class="small text-muted">Total em aberto</div>
       <div class="valor">{{ total_em_aberto | brl }}</div>

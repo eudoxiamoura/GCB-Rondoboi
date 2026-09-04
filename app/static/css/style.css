@@ -260,3 +260,25 @@ select.form-select {
 .lote-card-femea {
   border-left-color: var(--ro-amarelo);
 }
+
+/* Barra dividida (ex: proporção macho/fêmea) usada na Visão geral */
+.split-bar {
+  display: flex;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #e9ecef;
+}
+
+.split-bar-macho {
+  background: var(--ro-verde);
+}
+
+.split-bar-femea {
+  background: var(--ro-amarelo);
+}
+
+.chart-wrap {
+  position: relative;
+  height: 280px;
+}

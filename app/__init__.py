@@ -50,8 +50,6 @@ def create_app(config_class=Config):
     def index():
         lotes = models.Lote.query.filter_by(is_rascunho=False).all()
         resumos = {lote.id: resumo_do_lote(lote) for lote in lotes}
-        total_lotes = len(lotes)
-        total_movimentado = sum(resumo.custo_total_lote for resumo in resumos.values())
         total_estoque = sum(resumo.sobra for resumo in resumos.values())
 
         lotes_abertos = [lote for lote in lotes if lote.status == "aberto"]
@@ -62,8 +60,6 @@ def create_app(config_class=Config):
 
         return render_template(
             "inicio.html",
-            total_lotes=total_lotes,
-            total_movimentado=total_movimentado,
             total_em_aberto=total_em_aberto,
             total_estoque=total_estoque,
             resumos=resumos,

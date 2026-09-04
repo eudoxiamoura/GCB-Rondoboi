@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block title %}Visão geral{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('index') }}" class="d-inline-flex align-items-center gap-1 text-decoration-none mb-2 small">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+  Início
+</a>
+<h1 class="h3 mb-4">Visão geral</h1>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-sm-4">
+    <div class="card card-metric p-3">
+      <div class="small text-muted">Lotes registrados</div>
+      <div class="valor">{{ total_lotes }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-sm-4">
+    <div class="card card-metric p-3">
+      <div class="small text-muted">Total movimentado</div>
+      <div class="valor">{{ total_movimentado | brl }}</div>
+    </div>
+  </div>
+</div>
+
+{% if not lotes_grafico %}
+  <p class="text-muted">Nenhum lote cadastrado ainda para gerar os gráficos.</p>
+{% else %}
+
+<div class="card p-3 mb-4">
+  <h2 class="h6 mb-3">Machos e fêmeas</h2>
+
+  {% set total_cabecas = resumo_sexo.cabecas_macho + resumo_sexo.cabecas_femea %}
+  {% set total_investido_sexo = resumo_sexo.investido_macho + resumo_sexo.investido_femea %}
+
+  <div class="mb-3">
+    <div class="d-flex justify-content-between small text-muted mb-1">
+      <span>Cabeças compradas</span>
+      <span>{{ resumo_sexo.cabecas_macho }} machos · {{ resumo_sexo.cabecas_femea }} fêmeas</span>
+    </div>
+    <div class="split-bar">
+      {% if total_cabecas > 0 %}
+      <div class="split-bar-macho" style="width: {{ (resumo_sexo.cabecas_macho / total_cabecas * 100) | round(1) }}%"></div>
+      <div class="split-bar-femea" style="width: {{ (resumo_sexo.cabecas_femea / total_cabecas * 100) | round(1) }}%"></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div>
+    <div class="d-flex justify-content-between small text-muted mb-1">
+      <span>Total investido</span>
+      <span>{{ resumo_sexo.investido_macho | brl }} machos · {{ resumo_sexo.investido_femea | brl }} fêmeas</span>
+    </div>
+    <div class="split-bar">
+      {% if total_investido_sexo > 0 %}
+      <div class="split-bar-macho" style="width: {{ (resumo_sexo.investido_macho / total_investido_sexo * 100) | round(1) }}%"></div>
+      <div class="split-bar-femea" style="width: {{ (resumo_sexo.investido_femea / total_investido_sexo * 100) | round(1) }}%"></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="d-flex gap-3 mt-3 small">
+    <span class="d-inline-flex align-items-center gap-1"><span class="lote-dot lote-dot-macho"></span> Machos</span>
+    <span class="d-inline-flex align-items-center gap-1"><span class="lote-dot lote-dot-femea"></span> Fêmeas</span>
+  </div>
+</div>
+
+<div class="card p-3 mb-4">
+  <h2 class="h6 mb-3">Total movimentado por lote</h2>
+  <div class="chart-wrap">
+    <canvas id="chartMovimentado"></canvas>
+  </div>
+</div>
+
+<div class="card p-3 mb-4">
+  <h2 class="h6 mb-1">Lucro líquido por lote</h2>
+  <div class="d-flex gap-3 mb-2 small">
+    <span class="d-inline-flex align-items-center gap-1"><span class="lote-dot" style="background: var(--ro-verde)"></span> Lucro</span>
+    <span class="d-inline-flex align-items-center gap-1"><span class="lote-dot" style="background: #dc3545"></span> Prejuízo</span>
+  </div>
+  <div class="chart-wrap">
+    <canvas id="chartLucro"></canvas>
+  </div>
+</div>
+
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if lotes_grafico %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  const lotes = {{ lotes_grafico | tojson }};
+  const labels = lotes.map(l => l.numero);
+  const azul = "#0a3d91";
+  const verde = "#1e8449";
+  const vermelho = "#dc3545";
+  const inkMuted = getComputedStyle(document.body).color;
+  const gridColor = "rgba(128,128,128,.15)";
+
+  new Chart(document.getElementById("chartMovimentado"), {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: "Total movimentado",
+        data: lotes.map(l => l.custo_total),
+        backgroundColor: azul,
+        borderRadius: 4,
+        maxBarThickness: 36,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => "R$ " + ctx.parsed.y.toLocaleString("pt-BR", {minimumFractionDigits: 2}),
+          },
+        },
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: {
+          grid: { color: gridColor },
+          ticks: {
+            callback: (v) => "R$ " + Number(v).toLocaleString("pt-BR"),
+          },
+        },
+      },
+    },
+  });
+
+  new Chart(document.getElementById("chartLucro"), {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: "Lucro líquido",
+        data: lotes.map(l => l.lucro_liquido),
+        backgroundColor: lotes.map(l => l.lucro_liquido >= 0 ? verde : vermelho),
+        borderRadius: 4,
+        maxBarThickness: 36,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => "R$ " + ctx.parsed.y.toLocaleString("pt-BR", {minimumFractionDigits: 2}),
+          },
+        },
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: {
+          grid: { color: gridColor },
+          ticks: {
+            callback: (v) => "R$ " + Number(v).toLocaleString("pt-BR"),
+          },
+        },
+      },
+    },
+  });
+</script>
+{% endif %}
+{% endblock %}

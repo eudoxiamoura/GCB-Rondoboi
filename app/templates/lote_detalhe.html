@@ -43,38 +43,14 @@
   </div>
   <div class="col-6 col-md-3">
     <div class="card card-metric p-3">
-      <div class="small text-muted">Sobra (não vendida)</div>
-      <div class="valor">{{ resumo.sobra }}</div>
+      <div class="small text-muted">Total investido</div>
+      <div class="valor">{{ resumo.custo_total_lote | brl }}</div>
     </div>
   </div>
   <div class="col-6 col-md-3">
     <div class="card card-metric p-3">
-      <div class="small text-muted">Custo da sobra</div>
-      <div class="valor">{{ resumo.custo_sobra | brl }}</div>
-    </div>
-  </div>
-  <div class="col-6 col-md-3">
-    <div class="card card-metric p-3 {{ 'lucro-positivo' if resumo.lucro_bruto >= 0 else 'lucro-negativo' }}">
-      <div class="small text-muted">Lucro bruto</div>
-      <div class="valor">{{ resumo.lucro_bruto | brl }}</div>
-    </div>
-  </div>
-  <div class="col-6 col-md-3">
-    <div class="card card-metric p-3">
-      <div class="small text-muted">Lucro por cabeça</div>
-      <div class="valor">{{ resumo.lucro_por_cabeca | brl }}</div>
-    </div>
-  </div>
-  <div class="col-6 col-md-3">
-    <div class="card card-metric p-3 {{ 'lucro-positivo' if resumo.lucro_liquido >= 0 else 'lucro-negativo' }}">
-      <div class="small text-muted">Lucro líquido</div>
-      <div class="valor">{{ resumo.lucro_liquido | brl }}</div>
-    </div>
-  </div>
-  <div class="col-6 col-md-3">
-    <div class="card card-metric p-3">
-      <div class="small text-muted">Divisão da parceria ({{ lote.percentual_parceria }}%)</div>
-      <div class="valor">{{ resumo.divisao_parceria | brl }}</div>
+      <div class="small text-muted">Custo médio da sobra não vendida</div>
+      <div class="valor">{{ resumo.custo_medio_sobra | brl }}</div>
     </div>
   </div>
 </div>

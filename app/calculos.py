@@ -17,6 +17,7 @@ class ResumoLote:
     receita_total: float
     sobra: int
     custo_sobra: Optional[float]
+    custo_medio_sobra: Optional[float]
     lucro_bruto: float
     lucro_por_cabeca: Optional[float]
     lucro_liquido: float
@@ -45,6 +46,12 @@ def calcular_resumo(
         else None
     )
 
+    # Custo médio da sobra não vendida: quanto do custo total ainda não foi
+    # recuperado com as vendas, dividido pelas cabeças que sobraram.
+    custo_medio_sobra = (
+        (custo_total_lote - receita_total) / sobra if sobra > 0 else None
+    )
+
     lucro_bruto = receita_total - custo_total_lote
 
     lucro_por_cabeca = (
@@ -63,6 +70,7 @@ def calcular_resumo(
         receita_total=round(receita_total, 2),
         sobra=sobra,
         custo_sobra=round(custo_sobra, 2) if custo_sobra is not None else None,
+        custo_medio_sobra=round(custo_medio_sobra, 2) if custo_medio_sobra is not None else None,
         lucro_bruto=round(lucro_bruto, 2),
         lucro_por_cabeca=round(lucro_por_cabeca, 2) if lucro_por_cabeca is not None else None,
         lucro_liquido=round(lucro_liquido, 2),
