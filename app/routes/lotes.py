@@ -38,7 +38,16 @@ def _parse_data_compra(valor):
 
 @lotes_bp.route("/visao-geral")
 def visao_geral():
-    lotes = Lote.query.filter_by(is_rascunho=False).order_by(Lote.data_criacao).all()
+    """Os gráficos consideram só lotes encerrados: enquanto o lote está
+    aberto o resultado ainda não é definitivo (venda/sobra em andamento),
+    então misturar com os encerrados distorceria os totais e o lucro."""
+    lotes = (
+        Lote.query.filter_by(is_rascunho=False, status="encerrado")
+        .order_by(Lote.data_criacao)
+        .all()
+    )
+    total_lotes_abertos = Lote.query.filter_by(is_rascunho=False, status="aberto").count()
+
     resumos = {lote.id: resumo_do_lote(lote) for lote in lotes}
 
     total_lotes = len(lotes)
@@ -67,21 +76,59 @@ def visao_geral():
     return render_template(
         "visao_geral.html",
         total_lotes=total_lotes,
+        total_lotes_abertos=total_lotes_abertos,
         total_movimentado=total_movimentado,
         lotes_grafico=lotes_grafico,
         resumo_sexo=resumo_sexo,
     )
 
 
+COLUNAS_ORDENAVEIS_DB = {
+    "lote": Lote.numero,
+    "data": Lote.data_criacao,
+    "status": Lote.status,
+}
+
+# Colunas calculadas a partir do resumo do lote (não existem como coluna no
+# banco, então a ordenação é feita em Python depois de montar os resumos).
+COLUNAS_ORDENAVEIS_RESUMO = {
+    "cabecas": lambda resumo: resumo.total_cabecas_compradas,
+    "custo_medio": lambda resumo: resumo.custo_medio_cabeca or 0,
+    "sobra": lambda resumo: resumo.sobra,
+    "lucro": lambda resumo: resumo.lucro_liquido,
+}
+
+
 @lotes_bp.route("/")
 def index():
     status_filtro = request.args.get("status")
+    colunas_validas = set(COLUNAS_ORDENAVEIS_DB) | set(COLUNAS_ORDENAVEIS_RESUMO)
+    ordenar_por = request.args.get("sort") if request.args.get("sort") in colunas_validas else "data"
+    direcao = request.args.get("dir") if request.args.get("dir") in ("asc", "desc") else "desc"
+
     query = Lote.query.filter_by(is_rascunho=False)
     if status_filtro in ("aberto", "encerrado"):
         query = query.filter_by(status=status_filtro)
-    lotes = query.order_by(Lote.data_criacao.desc()).all()
-    resumos = {lote.id: resumo_do_lote(lote) for lote in lotes}
-    return render_template("lotes_lista.html", lotes=lotes, resumos=resumos, status_filtro=status_filtro)
+
+    if ordenar_por in COLUNAS_ORDENAVEIS_DB:
+        coluna = COLUNAS_ORDENAVEIS_DB[ordenar_por]
+        coluna = coluna.asc() if direcao == "asc" else coluna.desc()
+        lotes = query.order_by(coluna).all()
+        resumos = {lote.id: resumo_do_lote(lote) for lote in lotes}
+    else:
+        lotes = query.all()
+        resumos = {lote.id: resumo_do_lote(lote) for lote in lotes}
+        chave = COLUNAS_ORDENAVEIS_RESUMO[ordenar_por]
+        lotes.sort(key=lambda lote: chave(resumos[lote.id]), reverse=(direcao == "desc"))
+
+    return render_template(
+        "lotes_lista.html",
+        lotes=lotes,
+        resumos=resumos,
+        status_filtro=status_filtro,
+        ordenar_por=ordenar_por,
+        direcao=direcao,
+    )
 
 
 @lotes_bp.route("/comprar", methods=["GET", "POST"])

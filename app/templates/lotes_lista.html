@@ -24,13 +24,25 @@
   <table class="table table-hover align-middle">
     <thead>
       <tr>
-        <th>Lote</th>
-        <th class="d-none d-sm-table-cell">Data</th>
-        <th class="d-none d-md-table-cell">Status</th>
-        <th class="text-end d-none d-md-table-cell">Cabeças</th>
-        <th class="text-end d-none d-lg-table-cell">Custo médio/cabeça</th>
-        <th class="text-end">Sobra</th>
-        <th class="text-end">Lucro líquido</th>
+        {% macro th_ordenavel(coluna, rotulo, classe="") %}
+        {% set proxima_direcao = "desc" if (ordenar_por == coluna and direcao == "asc") else "asc" %}
+        <th class="{{ classe }}">
+          <a href="{{ url_for('lotes.index', status=status_filtro, sort=coluna, dir=proxima_direcao) }}"
+             class="text-reset text-decoration-none d-inline-flex align-items-center gap-1">
+            {{ rotulo }}
+            {% if ordenar_por == coluna %}
+              <span class="small">{{ "▲" if direcao == "asc" else "▼" }}</span>
+            {% endif %}
+          </a>
+        </th>
+        {% endmacro %}
+        {{ th_ordenavel("lote", "Lote") }}
+        {{ th_ordenavel("data", "Data", "d-none d-sm-table-cell") }}
+        {{ th_ordenavel("status", "Status", "d-none d-md-table-cell") }}
+        {{ th_ordenavel("cabecas", "Cabeças", "text-end d-none d-md-table-cell") }}
+        {{ th_ordenavel("custo_medio", "Custo médio/cabeça", "text-end d-none d-lg-table-cell") }}
+        {{ th_ordenavel("sobra", "Sobra", "text-end") }}
+        {{ th_ordenavel("lucro", "Lucro líquido", "text-end") }}
         <th></th>
       </tr>
     </thead>

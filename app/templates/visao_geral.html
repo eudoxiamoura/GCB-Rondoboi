@@ -6,12 +6,15 @@
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
   Início
 </a>
-<h1 class="h3 mb-4">Visão geral</h1>
+<h1 class="h3 mb-1">Visão geral</h1>
+<p class="text-muted small mb-4">
+  Os gráficos e totais abaixo consideram só os lotes <strong>encerrados</strong> — o resultado de um lote em aberto ainda não é definitivo.
+</p>
 
 <div class="row g-3 mb-4">
   <div class="col-6 col-sm-4">
     <div class="card card-metric p-3">
-      <div class="small text-muted">Lotes registrados</div>
+      <div class="small text-muted">Lotes encerrados</div>
       <div class="valor">{{ total_lotes }}</div>
     </div>
   </div>
@@ -21,10 +24,21 @@
       <div class="valor">{{ total_movimentado | brl }}</div>
     </div>
   </div>
+  {% if total_lotes_abertos > 0 %}
+  <div class="col-6 col-sm-4">
+    <div class="card card-metric p-3">
+      <div class="small text-muted">Lotes em aberto (fora do gráfico)</div>
+      <div class="valor">{{ total_lotes_abertos }}</div>
+    </div>
+  </div>
+  {% endif %}
 </div>
 
 {% if not lotes_grafico %}
-  <p class="text-muted">Nenhum lote cadastrado ainda para gerar os gráficos.</p>
+  <p class="text-muted">
+    Nenhum lote encerrado ainda para gerar os gráficos.
+    {% if total_lotes_abertos > 0 %}Você tem {{ total_lotes_abertos }} lote(s) em aberto — encerre um lote em "Editar" para ele entrar aqui.{% endif %}
+  </p>
 {% else %}
 
 <div class="card p-3 mb-4">

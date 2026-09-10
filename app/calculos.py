@@ -22,6 +22,7 @@ class ResumoLote:
     lucro_bruto: float
     lucro_por_cabeca: Optional[float]
     lucro_liquido: float
+    lucro_medio_cabeca: Optional[float]
     divisao_parceria: float
 
 
@@ -61,6 +62,10 @@ def calcular_resumo(
 
     lucro_liquido = lucro_bruto - despesas_extras
 
+    lucro_medio_cabeca = (
+        lucro_liquido / total_cabecas_compradas if total_cabecas_compradas > 0 else None
+    )
+
     divisao_parceria = lucro_liquido * (percentual_parceria / 100.0)
 
     return ResumoLote(
@@ -76,6 +81,7 @@ def calcular_resumo(
         lucro_bruto=round(lucro_bruto, 2),
         lucro_por_cabeca=round(lucro_por_cabeca, 2) if lucro_por_cabeca is not None else None,
         lucro_liquido=round(lucro_liquido, 2),
+        lucro_medio_cabeca=round(lucro_medio_cabeca, 2) if lucro_medio_cabeca is not None else None,
         divisao_parceria=round(divisao_parceria, 2),
     )
 

@@ -205,21 +205,29 @@
 <div class="card card-metric p-3 p-md-4 my-4">
   <h2 class="h5 mb-3">Resumo financeiro do lote {{ "(fechado)" if lote.status == "encerrado" }}</h2>
   <div class="row g-3">
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-md-4">
       <div class="small text-muted">Total investido (compras)</div>
       <div class="valor">{{ resumo.custo_total_lote | brl }}</div>
     </div>
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-md-4">
       <div class="small text-muted">Total vendido</div>
       <div class="valor">{{ resumo.receita_total | brl }}</div>
     </div>
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-md-4">
       <div class="small text-muted">Outras despesas</div>
       <div class="valor">{{ resumo.despesas_extras | brl }}</div>
     </div>
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-md-4">
       <div class="small text-muted">Lucro {{ "após fechamento" if lote.status == "encerrado" else "líquido (provisório)" }}</div>
       <div class="valor {{ 'text-success' if resumo.lucro_liquido >= 0 else 'text-danger' }}">{{ resumo.lucro_liquido | brl }}</div>
+    </div>
+    <div class="col-6 col-md-4">
+      <div class="small text-muted">Total da parceria ({{ lote.percentual_parceria | round(1) }}%)</div>
+      <div class="valor {{ 'text-success' if resumo.divisao_parceria >= 0 else 'text-danger' }}">{{ resumo.divisao_parceria | brl }}</div>
+    </div>
+    <div class="col-6 col-md-4">
+      <div class="small text-muted">Lucro médio por cabeça</div>
+      <div class="valor {{ 'text-success' if (resumo.lucro_medio_cabeca or 0) >= 0 else 'text-danger' }}">{{ resumo.lucro_medio_cabeca | brl }}</div>
     </div>
   </div>
 </div>
