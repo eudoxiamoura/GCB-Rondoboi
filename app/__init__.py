@@ -13,6 +13,54 @@ login_manager.login_message = "Faça login para acessar o sistema."
 login_manager.login_message_category = "erro"
 
 
+def _migrar_coluna_role():
+    """Adiciona a coluna 'role' em bancos criados antes dos papéis de usuário
+    existirem, sem depender de uma ferramenta de migração (Alembic etc)."""
+    from sqlalchemy import inspect, text
+
+    inspector = inspect(db.engine)
+    colunas = [c["name"] for c in inspector.get_columns("users")]
+    if "role" in colunas:
+        return
+
+    with db.engine.begin() as conn:
+        conn.execute(text("ALTER TABLE users ADD COLUMN role VARCHAR(20) DEFAULT 'visualizacao'"))
+        # todo usuário que já existia é anterior aos papéis, então vira admin
+        # pra não travar o acesso de ninguém que já usava o sistema
+        conn.execute(text("UPDATE users SET role = 'admin'"))
+
+
+def _migrar_despesas_extras():
+    """Antes de existir uma seção de despesas por lançamento, cada lote tinha
+    um único valor solto de 'despesas extras'. Aqui esse valor vira o primeiro
+    lançamento da tabela despesas_lote, pra não perder o que já foi informado."""
+    from sqlalchemy import inspect, text
+
+    inspector = inspect(db.engine)
+    colunas = [c["name"] for c in inspector.get_columns("lotes")]
+    if "despesas_extras" not in colunas:
+        return
+
+    with db.engine.begin() as conn:
+        linhas = conn.execute(
+            text("SELECT id, data_criacao, despesas_extras FROM lotes WHERE despesas_extras != 0")
+        ).fetchall()
+        for lote_id, data_criacao, valor in linhas:
+            conn.execute(
+                text(
+                    "INSERT INTO despesas_lote (lote_id, data, descricao, valor) "
+                    "VALUES (:lote_id, :data, :descricao, :valor)"
+                ),
+                {
+                    "lote_id": lote_id,
+                    "data": data_criacao,
+                    "descricao": "Outras despesas (lançamento anterior)",
+                    "valor": valor,
+                },
+            )
+        conn.execute(text("UPDATE lotes SET despesas_extras = 0 WHERE despesas_extras != 0"))
+
+
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
@@ -26,13 +74,17 @@ def create_app(config_class=Config):
     from app.routes.lotes import lotes_bp
     from app.routes.compras import compras_bp
     from app.routes.vendas import vendas_bp
+    from app.routes.despesas import despesas_bp
     from app.routes.romaneio import romaneio_bp
+    from app.routes.configuracoes import config_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(lotes_bp)
     app.register_blueprint(compras_bp)
     app.register_blueprint(vendas_bp)
+    app.register_blueprint(despesas_bp)
     app.register_blueprint(romaneio_bp)
+    app.register_blueprint(config_bp)
 
     from app import models  # noqa: F401 - garante que os modelos sejam registrados
 
@@ -40,8 +92,14 @@ def create_app(config_class=Config):
     def load_user(user_id):
         return models.User.query.get(int(user_id))
 
+    @app.errorhandler(403)
+    def acesso_negado(erro):
+        return render_template("erro_403.html"), 403
+
     with app.app_context():
         db.create_all()
+        _migrar_coluna_role()
+        _migrar_despesas_extras()
 
     from app.calculos import formatar_brl, resumo_do_lote
 
@@ -87,7 +145,11 @@ def create_app(config_class=Config):
 
         user = models.User.query.filter_by(username=username).first()
         if user is None:
-            user = models.User(username=username)
+            role = input(f"Papel ({'/'.join(models.PAPEIS_USUARIO)}) [admin]: ").strip() or "admin"
+            if role not in models.PAPEIS_USUARIO:
+                print(f"Papel inválido. Use um de: {', '.join(models.PAPEIS_USUARIO)}.")
+                return
+            user = models.User(username=username, role=role)
             db.session.add(user)
             acao = "criado"
         else:

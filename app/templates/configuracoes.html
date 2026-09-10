@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Configurações{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('index') }}" class="d-inline-flex align-items-center gap-1 text-decoration-none mb-2 small">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+  Início
+</a>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <h1 class="h3 mb-0">Configurações</h1>
+</div>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <h2 class="h5 mb-0">Usuários</h2>
+  <a href="{{ url_for('config.novo_usuario') }}" class="btn btn-primary btn-sm">+ Novo usuário</a>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-hover align-middle">
+    <thead>
+      <tr>
+        <th>Usuário</th>
+        <th>Papel</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for usuario in usuarios %}
+      <tr>
+        <td>
+          {{ usuario.username }}
+          {% if usuario.id == current_user.id %}<span class="text-muted small">(você)</span>{% endif %}
+        </td>
+        <td>
+          <span class="badge {{ 'bg-primary' if usuario.role == 'admin' else ('bg-success' if usuario.role == 'gerente' else 'bg-secondary') }}">
+            {{ usuario.nome_papel }}
+          </span>
+        </td>
+        <td class="text-end">
+          <a class="btn btn-sm btn-outline-primary" href="{{ url_for('config.editar_usuario', user_id=usuario.id) }}">Editar</a>
+          {% if usuario.id != current_user.id %}
+          <form method="post" action="{{ url_for('config.excluir_usuario', user_id=usuario.id) }}" class="d-inline" onsubmit="return confirm('Excluir o usuário {{ usuario.username }}?');">
+            <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<p class="text-muted small mt-4">
+  <strong>Administrador</strong>: acesso total, inclusive esta página de configurações e cadastro de usuários.<br>
+  <strong>Gerente</strong>: cadastra e edita lotes, compras, vendas e romaneios.<br>
+  <strong>Visualização</strong>: acesso somente para consulta, sem poder cadastrar ou editar nada.
+</p>
+{% endblock %}

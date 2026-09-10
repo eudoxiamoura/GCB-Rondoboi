@@ -25,6 +25,7 @@
     <thead>
       <tr>
         <th>Lote</th>
+        <th class="d-none d-sm-table-cell">Data</th>
         <th class="d-none d-md-table-cell">Status</th>
         <th class="text-end d-none d-md-table-cell">Cabeças</th>
         <th class="text-end d-none d-lg-table-cell">Custo médio/cabeça</th>
@@ -41,6 +42,7 @@
           <span class="lote-dot {{ 'lote-dot-femea' if lote.sexo == 'femea' else 'lote-dot-macho' }}" title="{{ 'Fêmea' if lote.sexo == 'femea' else 'Macho' }}"></span>
           <a href="{{ url_for('lotes.detalhe', lote_id=lote.id) }}">{{ lote.nome_completo }}</a>
         </td>
+        <td class="d-none d-sm-table-cell">{{ lote.data_criacao.strftime('%d/%m/%Y') }}</td>
         <td class="d-none d-md-table-cell">
           <span class="badge {{ 'bg-secondary' if lote.status == 'encerrado' else 'bg-success' }}">
             {{ lote.status }}

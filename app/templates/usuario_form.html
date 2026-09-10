@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ "Editar usuário" if usuario else "Novo usuário" }}{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('config.index') }}" class="d-inline-flex align-items-center gap-1 text-decoration-none mb-2 small">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+  Configurações
+</a>
+
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <h1 class="h3 mb-4">{{ "Editar usuário" if usuario else "Novo usuário" }}</h1>
+    <form method="post">
+      <div class="mb-3">
+        <label class="form-label">Usuário</label>
+        <input type="text" name="username" class="form-control" value="{{ usuario.username if usuario else (username or '') }}" autofocus required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Papel</label>
+        <select name="role" class="form-select" {{ "disabled" if usuario and usuario.id == current_user.id else "" }} required>
+          {% for papel in papeis %}
+          <option value="{{ papel }}" {{ "selected" if (usuario.role if usuario else role) == papel else "" }}>
+            {{ {"admin": "Administrador", "gerente": "Gerente", "visualizacao": "Visualização"}.get(papel, papel) }}
+          </option>
+          {% endfor %}
+        </select>
+        {% if usuario and usuario.id == current_user.id %}
+        <input type="hidden" name="role" value="{{ usuario.role }}">
+        <div class="form-text">Você não pode alterar seu próprio papel.</div>
+        {% endif %}
+      </div>
+      <div class="mb-3">
+        <label class="form-label">{{ "Nova senha" if usuario else "Senha" }}</label>
+        <input type="password" name="password" class="form-control" {{ "" if usuario else "required" }}>
+        {% if usuario %}<div class="form-text">Deixe em branco para manter a senha atual.</div>{% endif %}
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Confirmar senha</label>
+        <input type="password" name="confirmar_senha" class="form-control" {{ "" if usuario else "required" }}>
+      </div>
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        <a href="{{ url_for('config.index') }}" class="btn btn-outline-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

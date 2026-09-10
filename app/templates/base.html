@@ -16,15 +16,20 @@
   <meta name="apple-mobile-web-app-title" content="Bovinos">
 </head>
 <body>
-  <nav class="navbar navbar-dark bg-dark mb-4">
+  <nav class="navbar navbar-dark bg-dark mb-4 no-print">
     <div class="container d-flex flex-wrap align-items-center justify-content-between gap-2 py-1">
       <a class="navbar-brand mb-0" href="{{ url_for('index') if current_user.is_authenticated else url_for('auth.login') }}">Rondoboi-Comércio de Bovinos</a>
       {% if current_user.is_authenticated %}
       <div class="d-flex align-items-center flex-wrap gap-2">
+        {% if current_user.pode_editar %}
         <a class="btn btn-outline-light btn-sm" href="{{ url_for('lotes.novo') }}">+ Novo lote</a>
         <a class="btn btn-outline-light btn-sm" href="{{ url_for('romaneio.novo') }}">+ Novo romaneio</a>
+        {% endif %}
         <a class="btn btn-outline-light btn-sm" href="{{ url_for('lotes.index') }}">Ver lotes</a>
-        <span class="text-light small d-none d-sm-inline">{{ current_user.username }}</span>
+        {% if current_user.is_admin %}
+        <a class="btn btn-outline-light btn-sm" href="{{ url_for('config.index') }}">⚙ Configurações</a>
+        {% endif %}
+        <span class="text-light small d-none d-sm-inline">{{ current_user.username }} · {{ current_user.nome_papel }}</span>
         <form method="post" action="{{ url_for('auth.logout') }}" class="d-inline">
           <button type="submit" class="btn btn-outline-light btn-sm">Sair</button>
         </form>
@@ -38,7 +43,7 @@
       {% if messages %}
         {% for categoria, mensagem in messages %}
           {% set classe_alerta = {'erro': 'alert-danger', 'aviso': 'alert-warning'}.get(categoria, 'alert-success') %}
-          <div class="alert {{ classe_alerta }}">
+          <div class="alert {{ classe_alerta }} no-print">
             {{ mensagem }}
           </div>
         {% endfor %}

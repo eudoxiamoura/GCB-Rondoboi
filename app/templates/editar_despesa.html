@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Editar despesa{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4">Editar despesa</h1>
+
+<form method="post" class="col-lg-6">
+  <div class="row g-2">
+    <div class="col-12 col-sm-6">
+      <label class="form-label">Data</label>
+      <input type="date" name="data" class="form-control" value="{{ despesa.data.strftime('%Y-%m-%d') }}">
+    </div>
+    <div class="col-12 col-sm-6">
+      <label class="form-label">Valor</label>
+      <input type="number" step="0.01" inputmode="decimal" name="valor" class="form-control" value="{{ despesa.valor }}" required>
+    </div>
+    <div class="col-12">
+      <label class="form-label">Descrição</label>
+      <input type="text" name="descricao" class="form-control" value="{{ despesa.descricao }}" placeholder="Ex: Pagamento de funcionário, sal mineral..." required>
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary mt-3">Salvar</button>
+  <a href="{{ url_for('lotes.detalhe', lote_id=despesa.lote_id) }}" class="btn btn-link mt-3">Cancelar</a>
+</form>
+{% endblock %}

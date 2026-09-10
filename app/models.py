@@ -6,12 +6,22 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from app import db
 
 
+PAPEIS_USUARIO = ("admin", "gerente", "visualizacao")
+
+NOMES_PAPEL = {
+    "admin": "Administrador",
+    "gerente": "Gerente",
+    "visualizacao": "Visualização",
+}
+
+
 class User(UserMixin, db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
+    role = db.Column(db.String(20), nullable=False, default="visualizacao")
 
     def set_password(self, password):
         # pbkdf2:sha256 explícito porque o hashlib do Python do sistema (macOS)
@@ -20,6 +30,18 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    @property
+    def nome_papel(self):
+        return NOMES_PAPEL.get(self.role, self.role)
+
+    @property
+    def is_admin(self):
+        return self.role == "admin"
+
+    @property
+    def pode_editar(self):
+        return self.role in ("admin", "gerente")
 
 
 class Lote(db.Model):
@@ -32,7 +54,6 @@ class Lote(db.Model):
     status = db.Column(db.String(20), nullable=False, default="aberto")  # aberto | encerrado
     sexo = db.Column(db.String(10), nullable=False, default="macho")  # macho | femea
     percentual_parceria = db.Column(db.Float, nullable=False, default=50.0)
-    despesas_extras = db.Column(db.Float, nullable=False, default=0.0)
 
     # marca lotes criados via "duplicar como rascunho"
     is_rascunho = db.Column(db.Boolean, nullable=False, default=False)
@@ -43,6 +64,10 @@ class Lote(db.Model):
     )
     vendas = db.relationship(
         "Venda", backref="lote", cascade="all, delete-orphan", lazy=True
+    )
+    despesas = db.relationship(
+        "DespesaLote", backref="lote", cascade="all, delete-orphan", lazy=True,
+        order_by="DespesaLote.data",
     )
     sobras_recebidas = db.relationship(
         "SobraTransferida",
@@ -57,6 +82,18 @@ class Lote(db.Model):
         if self.descricao:
             return f"{self.numero} - {self.descricao}"
         return self.numero
+
+
+class DespesaLote(db.Model):
+    """Outras despesas do lote que não são compra nem venda de cabeças:
+    pagamento de funcionário, sal mineral, etc. Abatem do lucro líquido."""
+    __tablename__ = "despesas_lote"
+
+    id = db.Column(db.Integer, primary_key=True)
+    lote_id = db.Column(db.Integer, db.ForeignKey("lotes.id"), nullable=False)
+    data = db.Column(db.Date, nullable=False, default=date.today)
+    descricao = db.Column(db.String(120), nullable=False)
+    valor = db.Column(db.Float, nullable=False, default=0.0)
 
 
 class Compra(db.Model):

@@ -282,3 +282,111 @@ select.form-select {
   position: relative;
   height: 280px;
 }
+
+/* Relatório de impressão: esconde navegação, botões e formulários de ação, e
+   comprime tudo (fonte, espaçamentos, colunas) pra caber numa página só. */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 8mm;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  html {
+    font-size: 10px;
+  }
+
+  body {
+    background: #fff;
+    line-height: 1.25;
+  }
+
+  .container {
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+
+  h1, .h3 {
+    font-size: 1.5rem;
+    margin-bottom: .2rem;
+  }
+
+  h2, .h5 {
+    font-size: 1.1rem;
+    margin-bottom: .3rem;
+  }
+
+  .text-muted, .form-text {
+    font-size: .85rem;
+  }
+
+  .badge {
+    font-size: .7rem;
+  }
+
+  .alert {
+    padding: .4rem .6rem;
+    margin-bottom: .5rem;
+  }
+
+  /* linhas de cartões (métricas do topo e do resumo financeiro): força a
+     grade lado a lado na impressão, sem depender do breakpoint do Bootstrap
+     (a largura da página impressa costuma ficar abaixo do "lg") */
+  .row {
+    row-gap: .35rem !important;
+    column-gap: 0 !important;
+  }
+
+  .row.g-3 > [class*="col-"] {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+
+  .row.g-4 > .col-lg-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+
+  .row.g-4 > .col-12 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .card-metric {
+    border: 1px solid #dee2e6 !important;
+    background: #fff !important;
+    padding: .4rem .6rem !important;
+    break-inside: avoid;
+  }
+
+  .card-metric .valor {
+    font-size: 1rem;
+  }
+
+  .card-metric .small {
+    font-size: .7rem;
+  }
+
+  .my-4 {
+    margin-top: .6rem !important;
+    margin-bottom: .6rem !important;
+  }
+
+  .mb-4, .mb-3 {
+    margin-bottom: .5rem !important;
+  }
+
+  table {
+    break-inside: avoid;
+    font-size: .8rem;
+  }
+
+  table.table-sm td,
+  table.table-sm th {
+    padding: .2rem .35rem;
+  }
+}

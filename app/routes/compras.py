@@ -5,9 +5,11 @@ from flask_login import login_required
 
 from app import db
 from app.models import Compra, Lote
+from app.permissions import bloquear_escrita_visualizacao
 
 compras_bp = Blueprint("compras", __name__, url_prefix="/lotes/<int:lote_id>/compras")
 compras_bp.before_request(login_required(lambda: None))
+compras_bp.before_request(bloquear_escrita_visualizacao)
 
 
 def _parse_data(valor):

@@ -6,10 +6,12 @@ from flask_login import login_required
 
 from app import db
 from app.models import PesagemIndividual, Romaneio
+from app.permissions import bloquear_escrita_visualizacao
 from app.romaneio_calculos import resumo_do_romaneio
 
 romaneio_bp = Blueprint("romaneio", __name__, url_prefix="/romaneio")
 romaneio_bp.before_request(login_required(lambda: None))
+romaneio_bp.before_request(bloquear_escrita_visualizacao)
 
 
 def _proximo_numero_romaneio():

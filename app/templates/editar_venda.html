@@ -16,23 +16,23 @@
     </div>
     <div class="col-6">
       <label class="form-label">Quantidade</label>
-      <input type="number" name="quantidade" class="form-control" value="{{ venda.quantidade }}" required>
+      <input type="number" inputmode="numeric" name="quantidade" class="form-control" value="{{ venda.quantidade }}" required>
     </div>
     <div class="col-6">
       <label class="form-label">Valor unitário</label>
-      <input type="number" step="0.01" name="valor_unitario" class="form-control" value="{{ venda.valor_unitario }}" required>
+      <input type="number" step="0.01" inputmode="decimal" name="valor_unitario" class="form-control" value="{{ venda.valor_unitario }}" required>
     </div>
     <div class="col-6 col-sm-4">
       <label class="form-label">Frete</label>
-      <input type="number" step="0.01" name="frete" class="form-control" value="{{ venda.frete }}">
+      <input type="number" step="0.01" inputmode="decimal" name="frete" class="form-control" value="{{ venda.frete }}">
     </div>
     <div class="col-6 col-sm-4">
       <label class="form-label">Comissão</label>
-      <input type="number" step="0.01" name="comissao" class="form-control" value="{{ venda.comissao }}">
+      <input type="number" step="0.01" inputmode="decimal" name="comissao" class="form-control" value="{{ venda.comissao }}">
     </div>
     <div class="col-12 col-sm-4">
       <label class="form-label">GTA</label>
-      <input type="number" step="0.01" name="gta" class="form-control" value="{{ venda.gta }}">
+      <input type="number" step="0.01" inputmode="decimal" name="gta" class="form-control" value="{{ venda.gta }}">
     </div>
   </div>
   <button type="submit" class="btn btn-primary mt-3">Salvar</button>

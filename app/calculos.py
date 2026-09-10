@@ -18,6 +18,7 @@ class ResumoLote:
     sobra: int
     custo_sobra: Optional[float]
     custo_medio_sobra: Optional[float]
+    despesas_extras: float
     lucro_bruto: float
     lucro_por_cabeca: Optional[float]
     lucro_liquido: float
@@ -71,6 +72,7 @@ def calcular_resumo(
         sobra=sobra,
         custo_sobra=round(custo_sobra, 2) if custo_sobra is not None else None,
         custo_medio_sobra=round(custo_medio_sobra, 2) if custo_medio_sobra is not None else None,
+        despesas_extras=round(despesas_extras, 2),
         lucro_bruto=round(lucro_bruto, 2),
         lucro_por_cabeca=round(lucro_por_cabeca, 2) if lucro_por_cabeca is not None else None,
         lucro_liquido=round(lucro_liquido, 2),
@@ -94,7 +96,7 @@ def resumo_do_lote(lote) -> ResumoLote:
         custo_total_lote=custo_total,
         total_cabecas_vendidas=total_vendido,
         receita_total=receita_total,
-        despesas_extras=lote.despesas_extras or 0.0,
+        despesas_extras=sum(d.valor for d in lote.despesas),
         percentual_parceria=lote.percentual_parceria or 0.0,
     )
 
@@ -106,26 +108,27 @@ def formatar_brl(valor: float) -> str:
     return f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
-def alerta_preco_venda(valor_unitario: float, custo_medio_cabeca: Optional[float]) -> Optional[str]:
+def alerta_preco_venda(valor_unitario: float, custo_medio_sobra: Optional[float]) -> Optional[str]:
     """Retorna uma mensagem de alerta se o valor de venda por cabeça estiver
-    abaixo do custo médio do lote, ou muito diferente dele (> 40%). Não
-    bloqueia o lançamento — é só um aviso para o usuário conferir o valor.
+    abaixo do custo médio da sobra não vendida (o que ainda falta recuperar
+    do lote), ou muito diferente dele (> 40%). Não bloqueia o lançamento —
+    é só um aviso para o usuário conferir o valor.
     """
-    if not custo_medio_cabeca:
+    if not custo_medio_sobra:
         return None
 
-    if valor_unitario < custo_medio_cabeca:
+    if valor_unitario < custo_medio_sobra:
         return (
             f"Atenção: o valor de venda ({formatar_brl(valor_unitario)}) está abaixo do "
-            f"custo médio por cabeça deste lote ({formatar_brl(custo_medio_cabeca)})."
+            f"custo médio da sobra não vendida deste lote ({formatar_brl(custo_medio_sobra)})."
         )
 
-    diferenca = abs(valor_unitario - custo_medio_cabeca) / custo_medio_cabeca
+    diferenca = abs(valor_unitario - custo_medio_sobra) / custo_medio_sobra
     if diferenca > LIMITE_DIFERENCA_MEDIA:
         return (
             f"Atenção: o valor de venda ({formatar_brl(valor_unitario)}) está "
-            f"{diferenca * 100:.0f}% diferente do custo médio por cabeça deste lote "
-            f"({formatar_brl(custo_medio_cabeca)}). Confira se o valor está correto."
+            f"{diferenca * 100:.0f}% diferente do custo médio da sobra não vendida deste lote "
+            f"({formatar_brl(custo_medio_sobra)}). Confira se o valor está correto."
         )
 
     return None
@@ -152,6 +155,6 @@ def simular_venda(lote, quantidade: int, valor_unitario: float, frete: float, co
         custo_total_lote=custo_total,
         total_cabecas_vendidas=total_vendido,
         receita_total=receita_total,
-        despesas_extras=lote.despesas_extras or 0.0,
+        despesas_extras=sum(d.valor for d in lote.despesas),
         percentual_parceria=lote.percentual_parceria or 0.0,
     )

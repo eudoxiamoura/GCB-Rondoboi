@@ -28,11 +28,11 @@
   </div>
   <div class="mb-3">
     <label class="form-label">Percentual da parceria (%)</label>
-    <input type="number" step="0.01" name="percentual_parceria" class="form-control" value="{{ lote.percentual_parceria }}">
+    <input type="number" step="0.01" inputmode="decimal" name="percentual_parceria" class="form-control" value="{{ lote.percentual_parceria }}">
   </div>
-  <div class="mb-3">
-    <label class="form-label">Outras despesas do lote (para lucro líquido)</label>
-    <input type="number" step="0.01" name="despesas_extras" class="form-control" value="{{ lote.despesas_extras }}">
+  <div class="form-text mb-3">
+    Outras despesas (funcionário, sal mineral, etc.) agora ficam na seção
+    "Outras despesas" da página do lote, e não mais aqui.
   </div>
   <button type="submit" class="btn btn-primary">Salvar</button>
   <a href="{{ url_for('lotes.detalhe', lote_id=lote.id) }}" class="btn btn-link">Cancelar</a>

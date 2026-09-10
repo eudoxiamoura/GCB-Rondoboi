@@ -6,10 +6,12 @@ from flask_login import login_required
 
 from app import db
 from app.calculos import formatar_brl, resumo_do_lote
-from app.models import Compra, Lote, SobraTransferida, Venda
+from app.models import Compra, DespesaLote, Lote, SobraTransferida, Venda
+from app.permissions import bloquear_escrita_visualizacao
 
 lotes_bp = Blueprint("lotes", __name__, url_prefix="/lotes")
 lotes_bp.before_request(login_required(lambda: None))
+lotes_bp.before_request(bloquear_escrita_visualizacao)
 
 MESES_PT = [
     "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -187,7 +189,6 @@ def editar(lote_id):
         if request.form.get("sexo") in ("macho", "femea"):
             lote.sexo = request.form.get("sexo")
         lote.percentual_parceria = float(request.form.get("percentual_parceria") or 50.0)
-        lote.despesas_extras = float(request.form.get("despesas_extras") or 0.0)
         lote.status = request.form.get("status", lote.status)
         db.session.commit()
         flash("Lote atualizado.", "sucesso")
@@ -208,7 +209,6 @@ def duplicar(lote_id):
         status="aberto",
         sexo=original.sexo,
         percentual_parceria=original.percentual_parceria,
-        despesas_extras=original.despesas_extras,
         is_rascunho=True,
         lote_original_id=original.id,
     )
@@ -253,6 +253,16 @@ def duplicar(lote_id):
             )
         )
 
+    for despesa in original.despesas:
+        db.session.add(
+            DespesaLote(
+                lote_id=copia.id,
+                data=despesa.data,
+                descricao=despesa.descricao,
+                valor=despesa.valor,
+            )
+        )
+
     db.session.commit()
     flash(f"Rascunho {copia.nome_completo} criado a partir do lote {original.nome_completo}.", "sucesso")
     return redirect(url_for("lotes.detalhe", lote_id=copia.id))
@@ -278,10 +288,10 @@ def transferir_sobra(lote_id):
             flash(f"Quantidade inválida. A sobra disponível é {resumo.sobra}.", "erro")
             return redirect(url_for("lotes.transferir_sobra", lote_id=origem.id))
 
-        if resumo.custo_medio_cabeca is not None and valor_unitario < resumo.custo_medio_cabeca:
+        if resumo.custo_medio_sobra is not None and valor_unitario < resumo.custo_medio_sobra:
             flash(
                 f"O valor por cabeça ({formatar_brl(valor_unitario)}) não pode ser inferior "
-                f"ao que está custando ({formatar_brl(resumo.custo_medio_cabeca)}).",
+                f"ao custo médio da sobra não vendida ({formatar_brl(resumo.custo_medio_sobra)}).",
                 "erro",
             )
             return redirect(url_for("lotes.transferir_sobra", lote_id=origem.id))

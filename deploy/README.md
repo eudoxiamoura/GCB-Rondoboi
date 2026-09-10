@@ -94,12 +94,32 @@ sudo ufw enable
 
 ## Atualizando uma versão já em produção
 
+Sempre que a atualização mexer no banco (modelo novo, coluna nova), o app
+aplica a migração sozinho ao subir — não precisa rodar nada manual. Mesmo
+assim, faça um backup antes de reiniciar, é rápido e evita susto:
+
+```bash
+mkdir -p ~/backups
+sudo -u postgres pg_dump rondoboi > ~/backups/rondoboi-$(date +%Y%m%d-%H%M%S).sql
+```
+
+Depois é só atualizar o código e reiniciar o serviço:
+
 ```bash
 cd ~/GCB-Rondoboi
 git pull
 source venv/bin/activate
 pip install -r requirements.txt
 sudo systemctl restart rondoboi
+sudo systemctl status rondoboi --no-pager
+```
+
+Se algo der errado, restaurar o backup:
+
+```bash
+sudo systemctl stop rondoboi
+sudo -u postgres psql rondoboi < ~/backups/rondoboi-AAAAMMDD-HHMMSS.sql
+sudo systemctl start rondoboi
 ```
 
 ## Próximo passo: HTTPS

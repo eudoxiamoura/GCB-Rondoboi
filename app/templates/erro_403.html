@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Acesso negado{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+  <h1 class="h3 mb-3">Acesso negado</h1>
+  <p class="text-muted mb-4">Você não tem permissão para acessar essa página.</p>
+  <a href="{{ url_for('index') if current_user.is_authenticated else url_for('auth.login') }}" class="btn btn-primary">Voltar ao início</a>
+</div>
+{% endblock %}

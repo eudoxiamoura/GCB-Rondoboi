@@ -6,9 +6,11 @@ from flask_login import login_required
 from app import db
 from app.calculos import alerta_preco_venda, resumo_do_lote, simular_venda
 from app.models import Lote, Venda
+from app.permissions import bloquear_escrita_visualizacao
 
 vendas_bp = Blueprint("vendas", __name__, url_prefix="/lotes/<int:lote_id>/vendas")
 vendas_bp.before_request(login_required(lambda: None))
+vendas_bp.before_request(bloquear_escrita_visualizacao)
 
 
 def _parse_data(valor):
@@ -44,7 +46,7 @@ def nova(lote_id):
         )
         return redirect(url_for("lotes.detalhe", lote_id=lote.id))
 
-    aviso = alerta_preco_venda(venda.valor_unitario, resumo_atual.custo_medio_cabeca)
+    aviso = alerta_preco_venda(venda.valor_unitario, resumo_atual.custo_medio_sobra)
     if aviso:
         flash(aviso, "aviso")
 
@@ -83,7 +85,7 @@ def editar(lote_id, venda_id):
         venda.comissao = float(request.form.get("comissao") or 0.0)
         venda.gta = float(request.form.get("gta") or 0.0)
 
-        aviso = alerta_preco_venda(valor_unitario, resumo_sem_esta_venda.custo_medio_cabeca)
+        aviso = alerta_preco_venda(valor_unitario, resumo_sem_esta_venda.custo_medio_sobra)
         if aviso:
             flash(aviso, "aviso")
 
@@ -118,6 +120,8 @@ def simular(lote_id):
         comissao = float(request.form.get("comissao") or 0.0)
         gta = float(request.form.get("gta") or 0.0)
 
+        resumo_antes = resumo_do_lote(lote)
+
         resultado = simular_venda(
             lote,
             quantidade=quantidade,
@@ -127,7 +131,7 @@ def simular(lote_id):
             gta=gta,
         )
 
-        aviso = alerta_preco_venda(valor_unitario, resultado.custo_medio_cabeca)
+        aviso = alerta_preco_venda(valor_unitario, resumo_antes.custo_medio_sobra)
         if aviso:
             flash(aviso, "aviso")
 
