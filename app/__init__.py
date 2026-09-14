@@ -59,6 +59,9 @@ def _migrar_despesas_extras():
                 },
             )
         conn.execute(text("UPDATE lotes SET despesas_extras = 0 WHERE despesas_extras != 0"))
+        # A coluna não é mais usada (virou despesas_lote acima); mantê-la NOT
+        # NULL sem valor no model quebra todo INSERT novo em lotes.
+        conn.execute(text("ALTER TABLE lotes DROP COLUMN despesas_extras"))
 
 
 def create_app(config_class=Config):
